@@ -3,7 +3,8 @@ seeds = false
 skip-lint = false
 
 [programs.localnet]
-airdrop = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
+airdrop = "tXmC2ARKqzPoX6wQAVmDj25XAQUN6JQe8iz19QR5Lo3"
+basic_verifier = "FEdxZUg4BtWvMy7gy7pXEoj1isqBRYmbYdpyZfq5QZYr"
 
 [provider]
 cluster = "localnet"
