@@ -10,13 +10,14 @@ describe("airdrop", () => {
   anchor.setProvider(anchor.AnchorProvider.env());
   const provider: Provider = anchor.AnchorProvider.env();
   const program = anchor.workspace.Airdrop as Program<Airdrop>;
-  const state = anchor.web3.Keypair.generate();
-  const verifierState = anchor.web3.Keypair.generate();
+
+  const basicState = anchor.web3.Keypair.generate();
+  const basicVerifierState = anchor.web3.Keypair.generate();
   let mint: PublicKey;
-  let [vault, _bump] = anchor.web3.PublicKey.findProgramAddressSync(
+  let [basicVault, _bump] = anchor.web3.PublicKey.findProgramAddressSync(
     [
       Buffer.from(anchor.utils.bytes.utf8.encode("Vault")),
-      state.publicKey.toBuffer(),
+      basicState.publicKey.toBuffer(),
     ],
     program.programId,
   );
@@ -24,33 +25,34 @@ describe("airdrop", () => {
   const amount = new anchor.BN(1_000_000);
   const basicVerifier = new PublicKey('FEdxZUg4BtWvMy7gy7pXEoj1isqBRYmbYdpyZfq5QZYr');
 
-  it("Configure", async () => {
+  // TODO: Programmatically figure out the instruction data.
+  const basicVerifierInstruction = [133, 161, 141, 48, 120, 198, 88, 150];
 
+  it("Configure", async () => {
     mint = await createMint(provider, provider.publicKey);
 
-    // TODO: Programmatically figure out the instruction data.
     const tx = await program.methods.configure(
-      [133, 161, 141, 48, 120, 198, 88, 150]
+      basicVerifierInstruction
     )
     .accounts({
       payer: provider.publicKey,
-      state: state.publicKey,
+      state: basicState.publicKey,
       verifierProgram: basicVerifier,
-      vault: vault,
+      vault: basicVault,
       mint: mint,
-      verifierState: verifierState.publicKey,
+      verifierState: basicVerifierState.publicKey,
       tokenProgram: TOKEN_PROGRAM_ID,
       systemProgram: anchor.web3.SystemProgram.programId,
       rent: anchor.web3.SYSVAR_RENT_PUBKEY,
     })
-    .signers([state])
+    .signers([basicState])
     .rpc({ skipPreflight: true});
 
     console.log("Config signature", tx);
   });
 
   it("Claim", async () => {
-    await mintToAccount(provider, mint, vault, amount, provider.publicKey);
+    await mintToAccount(provider, mint, basicVault, amount, provider.publicKey);
 
     const recipient = await createTokenAccount(provider, mint, provider.publicKey);
 
@@ -62,11 +64,11 @@ describe("airdrop", () => {
     )
     .accounts({
       authority: provider.publicKey,
-      state: state.publicKey,
-      vault: vault,
+      state: basicState.publicKey,
+      vault: basicVault,
       recipient: recipient,
       verifierProgram: basicVerifier,
-      verifierState: verifierState.publicKey,
+      verifierState: basicVerifierState.publicKey,
       tokenProgram: TOKEN_PROGRAM_ID,
     })
     .rpc({ skipPreflight: true});
