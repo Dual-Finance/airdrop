@@ -10,13 +10,13 @@ pub struct Claim<'info> {
     #[account(mut)]
     pub authority: Signer<'info>,
 
-    pub state: AccountLoader<'info, State>,
+    pub state: Account<'info, State>,
 
     /// Expected to already be initialized and filled.
     #[account(
         mut,
-        seeds = [b"State".as_ref(), state.key().as_ref()],
-        bump,
+        seeds = [b"Vault".as_ref(), state.key().as_ref()],
+        bump = state.vault_bump,
     )]
     pub vault: Account<'info, TokenAccount>,
 
@@ -38,10 +38,9 @@ pub fn handle_claim<'info>(
     amount: u64,
     verifier_data: Vec<u8>
 ) -> Result<()> {
-    let state = ctx.accounts.state.load()?;
-
     let mut verifier_accounts: Vec<AccountMeta> = Vec::new();
     // Assume they all are mutable and not signers.
+    verifier_accounts.push(AccountMeta::new(*ctx.accounts.authority.key, true));
     verifier_accounts.push(AccountMeta::new(*ctx.accounts.verifier_state.key, false));
     verifier_accounts.push(AccountMeta::new(ctx.accounts.recipient.key(), false));
     for acct in ctx.remaining_accounts {
@@ -49,23 +48,28 @@ pub fn handle_claim<'info>(
     }
 
     let mut verifier_data_with_prefix: Vec<u8> = Vec::new();
-    verifier_data_with_prefix.extend_from_slice(&mut state.verifier_instruction_prefix.to_be_bytes());
-    verifier_data_with_prefix.extend_from_slice(&mut amount.to_be_bytes());
-    verifier_data_with_prefix.append(&mut verifier_data.clone());
+    verifier_data_with_prefix.extend_from_slice(&ctx.accounts.state.verifier_instruction_prefix);
+    verifier_data_with_prefix.extend_from_slice(&mut amount.to_le_bytes());
 
-    let ix = solana_program::instruction::Instruction::new_with_borsh(
+    // Put in the vec length prefix.
+    verifier_data_with_prefix.append(&mut verifier_data.clone().try_to_vec().unwrap());
+
+    let ix = solana_program::instruction::Instruction::new_with_bytes(
         *ctx.accounts.verifier_program.key,
         &verifier_data_with_prefix,
         verifier_accounts,
     );
 
     let mut account_infos: Vec<AccountInfo> = vec![
+        ctx.accounts.authority.clone().to_account_info(),
         ctx.accounts.verifier_state.clone().to_account_info(),
         ctx.accounts.recipient.clone().to_account_info(),
     ];
     for remaining_acct in ctx.remaining_accounts.clone() {
         account_infos.push(remaining_acct.clone().to_account_info());
     }
+
+    // This is the actual verification. If it fails, then do not proceed.
     solana_program::program::invoke(
         &ix,
         &account_infos,
@@ -83,7 +87,7 @@ pub fn handle_claim<'info>(
             &[&[
                 b"Vault".as_ref(),
                 &ctx.accounts.state.key().as_ref(),
-                &[state.state_bump],
+                &[ctx.accounts.state.vault_bump],
             ]],
         ),
         amount,

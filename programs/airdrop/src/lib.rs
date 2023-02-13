@@ -12,7 +12,7 @@ declare_id!("tXmC2ARKqzPoX6wQAVmDj25XAQUN6JQe8iz19QR5Lo3");
 pub mod airdrop {
     use super::*;
 
-    pub fn configure(ctx: Context<Configure>, verifier_instruction_prefix: u64) -> Result<()> {
+    pub fn configure(ctx: Context<Configure>, verifier_instruction_prefix: [u8; 8]) -> Result<()> {
         handle_configure(ctx, verifier_instruction_prefix)
     }
 

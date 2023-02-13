@@ -11,7 +11,7 @@ describe("basic_verifier", () => {
 
   it("Verify", async () => {
     const tx = await program.methods.verify(
-        new anchor.BN(123),
+        new anchor.BN(1_000_000),
         Buffer.from("Optional payload data"),
     )
     .accounts({
@@ -20,6 +20,6 @@ describe("basic_verifier", () => {
         unusedRecipient: provider.publicKey,
       })
     .rpc();
-    console.log("Your transaction signature", tx);
+    console.log("Verifiaction signature", tx);
   });
 });

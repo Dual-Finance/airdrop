@@ -6,16 +6,14 @@ use crate::State;
 #[derive(Accounts)]
 #[instruction()]
 pub struct Close<'info> {
-    /// Mutable because might need to pay rent in verifier.
     #[account(mut,
-        constraint = *authority.key == state.load()?.close_authority
+        constraint = *authority.key == state.close_authority
     )]
     pub authority: Signer<'info>,
 
-    #[account(mut, close=authority)]
-    pub state: AccountLoader<'info, State>,
+    #[account(mut)]
+    pub state: Account<'info, State>,
 
-    /// Expected to already be initialized and filled.
     #[account(
         mut,
         seeds = [b"State".as_ref(), state.key().as_ref()],
@@ -33,8 +31,6 @@ pub struct Close<'info> {
 pub fn handle_close(
     ctx: Context<Close>,
 ) -> Result<()> {
-    let state = ctx.accounts.state.load()?;
-
     // Transfer the tokens
     anchor_spl::token::transfer(
         CpiContext::new_with_signer(
@@ -47,7 +43,7 @@ pub fn handle_close(
             &[&[
                 b"Vault".as_ref(),
                 &ctx.accounts.state.key().as_ref(),
-                &[state.state_bump],
+                &[ctx.accounts.state.vault_bump],
             ]],
         ),
         ctx.accounts.vault.amount,
