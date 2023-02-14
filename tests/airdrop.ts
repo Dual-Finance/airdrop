@@ -91,7 +91,6 @@ describe("airdrop", () => {
       vault: basicVault,
       recipient: recipient,
       tokenProgram: TOKEN_PROGRAM_ID,
-      systemProgram: anchor.web3.SystemProgram.programId,
     })
     .rpc({ skipPreflight: true});
 

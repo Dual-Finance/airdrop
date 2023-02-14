@@ -2,6 +2,7 @@ use anchor_lang::prelude::*;
 use anchor_spl::token::{Token, TokenAccount, Mint};
 
 use crate::State;
+use crate::VAULT_SEED;
 
 #[derive(Accounts)]
 #[instruction(verifier_instruction_prefix: [u8; 8])]
@@ -20,7 +21,7 @@ pub struct Configure<'info> {
     #[account(
         init,
         payer = payer,
-        seeds = [b"Vault".as_ref(), state.key().as_ref()],
+        seeds = [VAULT_SEED.as_ref(), state.key().as_ref()],
         token::mint = mint,
         token::authority = vault,
         bump,

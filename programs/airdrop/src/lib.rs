@@ -1,9 +1,13 @@
 use anchor_lang::prelude::*;
 
 mod common;
+mod constants;
+mod errors;
 mod instructions;
 
 pub use crate::common::*;
+pub use crate::constants::*;
+pub use crate::errors::ErrorCode;
 pub use crate::instructions::*;
 
 declare_id!("tXmC2ARKqzPoX6wQAVmDj25XAQUN6JQe8iz19QR5Lo3");

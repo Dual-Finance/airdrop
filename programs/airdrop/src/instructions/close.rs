@@ -2,6 +2,7 @@ use anchor_lang::prelude::*;
 use anchor_spl::token::{Token, TokenAccount};
 
 use crate::State;
+use crate::VAULT_SEED;
 
 #[derive(Accounts)]
 #[instruction()]
@@ -16,7 +17,7 @@ pub struct Close<'info> {
 
     #[account(
         mut,
-        seeds = [b"Vault".as_ref(), state.key().as_ref()],
+        seeds = [VAULT_SEED.as_ref(), state.key().as_ref()],
         bump,
     )]
     pub vault: Account<'info, TokenAccount>,
@@ -25,13 +26,12 @@ pub struct Close<'info> {
     pub recipient: Account<'info, TokenAccount>,
 
     pub token_program: Program<'info, Token>,
-    pub system_program: Program<'info, System>,
 }
 
 pub fn handle_close(
     ctx: Context<Close>,
 ) -> Result<()> {
-    // Transfer the tokens
+    // Transfer the tokens.
     anchor_spl::token::transfer(
         CpiContext::new_with_signer(
             ctx.accounts.token_program.to_account_info(),
@@ -41,7 +41,7 @@ pub fn handle_close(
                 authority: ctx.accounts.vault.to_account_info(),
             },
             &[&[
-                b"Vault".as_ref(),
+                VAULT_SEED.as_ref(),
                 &ctx.accounts.state.key().as_ref(),
                 &[ctx.accounts.state.vault_bump],
             ]],

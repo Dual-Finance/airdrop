@@ -1,7 +1,9 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token::{TokenAccount, Token};
 
+use crate::ErrorCode;
 use crate::State;
+use crate::VAULT_SEED;
 
 #[derive(Accounts)]
 #[instruction(amount: u64, verifier_data: Vec<u8>)]
@@ -15,7 +17,7 @@ pub struct Claim<'info> {
     /// Expected to already be initialized and filled.
     #[account(
         mut,
-        seeds = [b"Vault".as_ref(), state.key().as_ref()],
+        seeds = [VAULT_SEED.as_ref(), state.key().as_ref()],
         bump = state.vault_bump,
     )]
     pub vault: Account<'info, TokenAccount>,
@@ -23,11 +25,11 @@ pub struct Claim<'info> {
     #[account(mut)]
     pub recipient: Account<'info, TokenAccount>,
 
-    #[account(constraint = verifier_program.key.as_ref() == state.verifier_program.key().as_ref())]
+    #[account(constraint = verifier_program.key.as_ref() == state.verifier_program.key().as_ref() @ ErrorCode::IncorrectVerifierProgram)]
     /// CHECK: Verified in the verifier.
     pub verifier_program: UncheckedAccount<'info>,
 
-    #[account(mut, constraint = verifier_state.key.as_ref() == state.verifier_state.key().as_ref())]
+    #[account(mut, constraint = verifier_state.key.as_ref() == state.verifier_state.key().as_ref() @ ErrorCode::IncorrectVerifierState)]
     /// CHECK: Verified in the verifier.
     pub verifier_state: UncheckedAccount<'info>,
 
@@ -86,7 +88,7 @@ pub fn handle_claim<'info>(
                 authority: ctx.accounts.vault.to_account_info(),
             },
             &[&[
-                b"Vault".as_ref(),
+                VAULT_SEED.as_ref(),
                 &ctx.accounts.state.key().as_ref(),
                 &[ctx.accounts.state.vault_bump],
             ]],
