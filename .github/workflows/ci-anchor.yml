@@ -11,6 +11,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Upgrade solana
+        run: sh -c "$(curl -sSfL https://release.solana.com/stable/install)"
       - name: List rustup toolchains
         run: rustup toolchain list
       - name: Set default toolchain
