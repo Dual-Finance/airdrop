@@ -13,6 +13,8 @@ jobs:
 
       - name: Upgrade solana
         run: sh -c "$(curl -sSfL https://release.solana.com/stable/install)"
+      - name: Upgrade cargo
+        run: cargo update
       - name: List rustup toolchains
         run: rustup toolchain list
       - name: Set default toolchain
