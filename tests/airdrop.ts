@@ -3,8 +3,10 @@ import { Provider, Program } from "@coral-xyz/anchor";
 import { Airdrop } from "../target/types/airdrop";
 import { PublicKey } from '@solana/web3.js';
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import { createMint, createTokenAccount, mintToAccount } from "./utils/utils";
+import { createMint, createTokenAccount, mintToAccount, toBytes32Array } from "./utils/utils";
 import { PasswordVerifier } from "../target/types/password_verifier";
+import { MerkleVerifier } from "../target/types/merkle_verifier";
+import { BalanceTree } from "./utils/balance_tree";
 
 describe("airdrop", () => {
   // Configure the client to use the local cluster.
@@ -12,6 +14,7 @@ describe("airdrop", () => {
   const provider: Provider = anchor.AnchorProvider.env();
   const program = anchor.workspace.Airdrop as Program<Airdrop>;
   const passwordVerifierProgram = anchor.workspace.PasswordVerifier as Program<PasswordVerifier>;
+  const merkleVerifierProgram = anchor.workspace.MerkleVerifier as Program<MerkleVerifier>;
   const amount = new anchor.BN(1_000_000);
   let mint: PublicKey;
 
@@ -173,6 +176,106 @@ describe("airdrop", () => {
     .rpc({ skipPreflight: true});
 
     console.log("Claim signature", tx);
+  });
+
+  const merkleVerifier = new PublicKey('4ibGmfZ6WU9qDc231sTRsTTHoDjQ1L6wxkrEAiEvKfLm');
+  const merkleVerifierInstruction = [133, 161, 141, 48, 120, 198, 88, 150];
+  const merkleVerifierStateKeypair = anchor.web3.Keypair.generate();
+
+  const merkleState = anchor.web3.Keypair.generate();
+  let [merkleVault, _merkleBump] = anchor.web3.PublicKey.findProgramAddressSync(
+    [
+      Buffer.from(anchor.utils.bytes.utf8.encode("Vault")),
+      merkleState.publicKey.toBuffer(),
+    ],
+    program.programId,
+  );
+  const kpOne = anchor.web3.Keypair.generate();
+  const kpTwo = anchor.web3.Keypair.generate();
+  const kpThree = anchor.web3.Keypair.generate();
+
+  const claimAmountOne = new anchor.BN(100);
+  const claimAmountTwo = new anchor.BN(101);
+  const claimAmountThree = new anchor.BN(102);
+  const tree = new BalanceTree([
+    { account: kpOne.publicKey, amount: claimAmountOne },
+    { account: kpTwo.publicKey, amount: claimAmountTwo },
+    { account: kpThree.publicKey, amount: claimAmountThree },
+  ]);
+
+  it("MerkleConfigure", async () => {
+    console.log("Merkle configure");
+    const tx = await merkleVerifierProgram.methods.init(
+      toBytes32Array(tree.getRoot())
+    )
+    .accounts({
+      payer: provider.publicKey,
+      distributor: merkleVerifierStateKeypair.publicKey,
+      systemProgram: anchor.web3.SystemProgram.programId,
+    })
+    .signers([merkleVerifierStateKeypair])
+    .rpc({ skipPreflight: true});
+    console.log("Merkle init", tx);
+
+    const tx2 = await program.methods.configure(
+      merkleVerifierInstruction
+    )
+    .accounts({
+      payer: provider.publicKey,
+      state: merkleState.publicKey,
+      verifierProgram: merkleVerifier,
+      vault: merkleVault,
+      mint: mint,
+      verifierState: merkleVerifierStateKeypair.publicKey,
+      tokenProgram: TOKEN_PROGRAM_ID,
+      systemProgram: anchor.web3.SystemProgram.programId,
+      rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+    })
+    .signers([merkleState])
+    .rpc({ skipPreflight: true});
+
+    console.log("Merkle config signature", tx2);
+  });
+
+  it("MerkleClaim", async () => {
+    await mintToAccount(provider, mint, merkleVault, amount, provider.publicKey);
+
+    const recipient = await createTokenAccount(provider, mint, kpTwo.publicKey);
+
+    const index = 1;
+    const proofStrings: Buffer[] = tree.getProof(index, kpTwo.publicKey, claimAmountTwo);
+    const proofBytes: number[][] = proofStrings.map((p) => toBytes32Array(p))
+
+    let verificationData: Buffer = Buffer.allocUnsafe(8);
+    verificationData.writeBigUInt64LE(BigInt(index));
+
+    for (const proofElem of proofBytes) {
+      verificationData = Buffer.concat([verificationData, Buffer.from(proofElem)]);
+    }
+
+    console.log("Merkle claim");
+    try {
+      console.log(merkleState.publicKey.toBase58());
+      console.log(merkleVault.toBase58());
+    const tx = await program.methods.claim(
+      claimAmountTwo,
+      verificationData
+    )
+    .accounts({
+      authority: provider.publicKey,
+      state: merkleState.publicKey,
+      vault: merkleVault,
+      recipient: recipient,
+      verifierProgram: merkleVerifier,
+      verifierState: merkleVerifierStateKeypair.publicKey,
+      tokenProgram: TOKEN_PROGRAM_ID,
+    })
+    .rpc({ skipPreflight: true});
+
+    console.log("Merkle claim signature", tx);
+  } catch (err) {
+    console.log(err);
+  }
   });
 
 });

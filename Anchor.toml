@@ -9,7 +9,7 @@ merkle_verifier = "4ibGmfZ6WU9qDc231sTRsTTHoDjQ1L6wxkrEAiEvKfLm"
 password_verifier = "EmsREpwoUtHnmg8aSCqmTFyfp71vnnFCdZozohcrZPeL"
 
 [provider]
-cluster = "devnet"
+cluster = "localnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]
