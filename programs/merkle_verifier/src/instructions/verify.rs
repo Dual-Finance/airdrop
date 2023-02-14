@@ -13,6 +13,17 @@ pub struct Verify<'info> {
 
     /// Recipient owner is part of the leaf node.
     pub recipient: Account<'info, TokenAccount>,
+
+    #[account(
+        init,
+        seeds = ["Receipt".as_ref(), verification_state.key().as_ref(), verification_data[0..8].as_ref()],
+        bump,
+        space = 8 + std::mem::size_of::<Receipt>(),
+        payer = authority
+    )]
+    pub receipt: Account<'info, Receipt>,
+
+    pub system_program: Program<'info, System>,
 }
 
 pub fn handle_verify(ctx: Context<Verify>, amount: u64, verification_data: Vec<u8>) -> Result<()> {
@@ -40,6 +51,11 @@ pub fn handle_verify(ctx: Context<Verify>, amount: u64, verification_data: Vec<u
     }
 
     verify_proof(proof, ctx.accounts.verification_state.root, leaf);
+
+    // Fill in the receipt. Just the presences of this object makes another
+    // attempt at verify fail.
+    ctx.accounts.receipt.index = index;
+    ctx.accounts.receipt.recipient = ctx.accounts.recipient.owner.key();
 
     Ok(())
 }

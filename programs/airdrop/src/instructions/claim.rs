@@ -41,13 +41,20 @@ pub fn handle_claim<'info>(
     amount: u64,
     verifier_data: Vec<u8>
 ) -> Result<()> {
+    msg!("Handling claim");
+
     let mut verifier_accounts: Vec<AccountMeta> = Vec::new();
     // Assume they all are mutable and not signers.
     verifier_accounts.push(AccountMeta::new(*ctx.accounts.authority.key, true));
     verifier_accounts.push(AccountMeta::new(*ctx.accounts.verifier_state.key, false));
     verifier_accounts.push(AccountMeta::new(ctx.accounts.recipient.key(), false));
     for acct in ctx.remaining_accounts {
-        verifier_accounts.push(AccountMeta::new(acct.key(), false));
+        let signer = acct.is_signer;
+        if acct.is_writable {
+            verifier_accounts.push(AccountMeta::new(acct.key(), signer));
+        } else {
+            verifier_accounts.push(AccountMeta::new_readonly(acct.key(), signer));
+        }
     }
 
     let mut verifier_data_with_prefix: Vec<u8> = Vec::new();

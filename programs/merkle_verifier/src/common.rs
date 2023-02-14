@@ -22,3 +22,10 @@ pub struct MerkleDistributor {
     /// The 256-bit merkle root.
     pub root: [u8; 32],
 }
+
+/// Receipt for claiming. This prevents multiple redemptions.
+#[account]
+pub struct Receipt {
+    pub index: u64,
+    pub recipient: Pubkey,
+}

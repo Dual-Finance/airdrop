@@ -46,6 +46,15 @@ describe("merkle_verifier", () => {
     let verificationData = Buffer.allocUnsafe(8);
     verificationData.writeBigUInt64LE(BigInt(index));
 
+    let [receipt, _receiptBump] = anchor.web3.PublicKey.findProgramAddressSync(
+      [
+        Buffer.from(anchor.utils.bytes.utf8.encode("Receipt")),
+        distributorStateKeypair.publicKey.toBuffer(),
+        verificationData,
+      ],
+      program.programId,
+    );
+
     for (const proofElem of proofBytes) {
         verificationData = Buffer.concat([verificationData, Buffer.from(proofElem)]);
     }
@@ -62,6 +71,8 @@ describe("merkle_verifier", () => {
         authority: provider.publicKey,
         verificationState: distributorStateKeypair.publicKey,
         recipient: recipientTokenAccount,
+        receipt,
+        systemProgram: anchor.web3.SystemProgram.programId,
       })
     .rpc({ skipPreflight: true});
     console.log("Verification signature", tx2);
