@@ -9,7 +9,7 @@ The main program is airdrop, but there are additional verifiers provided as exam
 
 ## airdrop
 
-Main program which conducts the airdrop of tokens. Three instructions are configure, claim, and close. Verifier states are used to allow any on-chain activity to allow users to qualify for aidrops. Example verifiers and how to use them are in the tests.
+Main program which conducts the airdrop of tokens. Three instructions are configure, claim, and close. Verifier states are used to allow any on-chain activity to allow users to qualify for airdrops. Example verifiers and how to use them are in the tests.
 
 ## basic_verifier
 
