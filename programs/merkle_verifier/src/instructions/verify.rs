@@ -19,6 +19,11 @@ pub fn handle_verify(ctx: Context<Verify>, amount: u64, verification_data: Vec<u
     let index_array: [u8; 8] = verification_data[0..8].try_into().expect("Invalid verification data");
     let index: u64 = u64::from_le_bytes(index_array);
 
+    msg!("Verification Data {:02X?}", verification_data);
+    msg!("Verification Data Length {}", verification_data.len());
+    msg!("Amount {}", amount);
+    msg!("Index {}", index);
+
     let leaf: [u8; 32] = anchor_lang::solana_program::keccak::hashv(&[
         &index.to_le_bytes(),
         &ctx.accounts.recipient.owner.key().to_bytes(),
@@ -28,9 +33,10 @@ pub fn handle_verify(ctx: Context<Verify>, amount: u64, verification_data: Vec<u
     let mut proof: Vec<[u8; 32]> = Vec::new();
     // Convert the rest of the Vec<u8> into Vec<[u8; 32]> and call the verifier
     let mut iter = verification_data[8..].chunks(32);
-    while !iter.next().is_none() {
+    while iter.len() > 0 {
         let next_hash: [u8; 32] = iter.next().unwrap().try_into().expect("Invalid verification data");
         proof.push(next_hash);
+        msg!("Proof hash {:02X?}", next_hash);
     }
 
     verify_proof(proof, ctx.accounts.verification_state.root, leaf);
