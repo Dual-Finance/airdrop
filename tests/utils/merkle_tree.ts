@@ -1,10 +1,38 @@
-import { keccak_256 } from "js-sha3";
+import { keccak_256 } from 'js-sha3';
+
+function getPairElement(idx: number, layer: Buffer[]): Buffer | null {
+  const pairIdx = idx % 2 === 0 ? idx + 1 : idx - 1;
+
+  if (pairIdx < layer.length) {
+    const pairEl = layer[pairIdx];
+    return pairEl;
+  }
+  return null;
+}
+
+function bufDedup(elements: Buffer[]): Buffer[] {
+  return elements.filter((el, idx) => idx === 0 || !elements[idx - 1]?.equals(el));
+}
+
+function bufArrToHexArr(arr: Buffer[]): string[] {
+  if (arr.some((el) => !Buffer.isBuffer(el))) {
+    throw new Error('Array is not an array of buffers');
+  }
+
+  return arr.map((el) => `0x${el.toString('hex')}`);
+}
+
+function sortAndConcat(...args: Buffer[]): Buffer {
+  return Buffer.concat([...args].sort(Buffer.compare.bind(null)));
+}
 
 export class MerkleTree {
   private readonly _elements: Buffer[];
+
   private readonly _bufferElementPositionIndex: {
     [hexElement: string]: number;
   };
+
   private readonly _layers: Buffer[][];
 
   constructor(elements: Buffer[]) {
@@ -15,7 +43,7 @@ export class MerkleTree {
     this._bufferElementPositionIndex = this._elements.reduce<{
       [hexElement: string]: number;
     }>((memo, el, index) => {
-      memo[el.toString("hex")] = index;
+      memo[el.toString('hex')] = index;
       return memo;
     }, {});
 
@@ -24,7 +52,7 @@ export class MerkleTree {
 
   getLayers(elements: Buffer[]): Buffer[][] {
     if (elements.length === 0) {
-      throw new Error("empty tree");
+      throw new Error('empty tree');
     }
 
     const layers = [];
@@ -68,14 +96,14 @@ export class MerkleTree {
   }
 
   getHexRoot(): string {
-    return this.getRoot().toString("hex");
+    return this.getRoot().toString('hex');
   }
 
   getProof(el: Buffer): Buffer[] {
-    const initialIdx = this._bufferElementPositionIndex[el.toString("hex")];
+    const initialIdx = this._bufferElementPositionIndex[el.toString('hex')];
 
-    if (typeof initialIdx !== "number") {
-      throw new Error("Element does not exist in Merkle tree");
+    if (typeof initialIdx !== 'number') {
+      throw new Error('Element does not exist in Merkle tree');
     }
 
     let idx = initialIdx;
@@ -97,33 +125,4 @@ export class MerkleTree {
 
     return bufArrToHexArr(proof);
   }
-}
-
-function getPairElement(idx: number, layer: Buffer[]): Buffer | null {
-  const pairIdx = idx % 2 === 0 ? idx + 1 : idx - 1;
-
-  if (pairIdx < layer.length) {
-    const pairEl = layer[pairIdx];
-    return pairEl;
-  } else {
-    return null;
-  }
-}
-
-function bufDedup(elements: Buffer[]): Buffer[] {
-  return elements.filter((el, idx) => {
-    return idx === 0 || !elements[idx - 1]?.equals(el);
-  });
-}
-
-function bufArrToHexArr(arr: Buffer[]): string[] {
-  if (arr.some((el) => !Buffer.isBuffer(el))) {
-    throw new Error("Array is not an array of buffers");
-  }
-
-  return arr.map((el) => "0x" + el.toString("hex"));
-}
-
-function sortAndConcat(...args: Buffer[]): Buffer {
-  return Buffer.concat([...args].sort(Buffer.compare.bind(null)));
 }

@@ -16,10 +16,7 @@ pub struct Init<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn handle_init(
-    ctx: Context<Init>,
-    root: [u8; 32]
-) -> Result<()> {
+pub fn handle_init(ctx: Context<Init>, root: [u8; 32]) -> Result<()> {
     ctx.accounts.distributor.root = root;
 
     Ok(())

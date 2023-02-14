@@ -23,7 +23,8 @@ pub mod airdrop {
     pub fn claim<'info>(
         ctx: Context<'_, '_, '_, 'info, Claim<'info>>,
         amount: u64,
-        verifier_data: Vec<u8>) -> Result<()> {
+        verifier_data: Vec<u8>,
+    ) -> Result<()> {
         handle_claim(ctx, amount, verifier_data)
     }
 

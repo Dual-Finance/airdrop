@@ -1,5 +1,5 @@
-use std::str;
 use anchor_lang::prelude::*;
+use std::str;
 
 declare_id!("EmsREpwoUtHnmg8aSCqmTFyfp71vnnFCdZozohcrZPeL");
 
@@ -13,7 +13,10 @@ pub mod password_verifier {
     }
 
     pub fn verify(ctx: Context<Verify>, _amount: u64, verification_data: Vec<u8>) -> Result<()> {
-        assert_eq!(ctx.accounts.verification_state.password, str::from_utf8(&verification_data).unwrap());
+        assert_eq!(
+            ctx.accounts.verification_state.password,
+            str::from_utf8(&verification_data).unwrap()
+        );
         Ok(())
     }
 }

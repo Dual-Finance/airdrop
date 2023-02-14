@@ -1,5 +1,5 @@
 use anchor_lang::prelude::*;
-use anchor_spl::token::{TokenAccount, Token};
+use anchor_spl::token::{Token, TokenAccount};
 
 use crate::ErrorCode;
 use crate::State;
@@ -39,7 +39,7 @@ pub struct Claim<'info> {
 pub fn handle_claim<'info>(
     ctx: Context<'_, '_, '_, 'info, Claim<'info>>,
     amount: u64,
-    verifier_data: Vec<u8>
+    verifier_data: Vec<u8>,
 ) -> Result<()> {
     msg!("Handling claim");
 
@@ -80,11 +80,8 @@ pub fn handle_claim<'info>(
     }
 
     // This is the actual verification. If it fails, then do not proceed.
-    solana_program::program::invoke(
-        &ix,
-        &account_infos,
-    )?;
-    
+    solana_program::program::invoke(&ix, &account_infos)?;
+
     // Transfer the tokens
     anchor_spl::token::transfer(
         CpiContext::new_with_signer(
@@ -102,6 +99,6 @@ pub fn handle_claim<'info>(
         ),
         amount,
     )?;
-    
+
     Ok(())
 }

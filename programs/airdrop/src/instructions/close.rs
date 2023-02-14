@@ -28,9 +28,7 @@ pub struct Close<'info> {
     pub token_program: Program<'info, Token>,
 }
 
-pub fn handle_close(
-    ctx: Context<Close>,
-) -> Result<()> {
+pub fn handle_close(ctx: Context<Close>) -> Result<()> {
     // Transfer the tokens.
     anchor_spl::token::transfer(
         CpiContext::new_with_signer(
@@ -48,7 +46,6 @@ pub fn handle_close(
         ),
         ctx.accounts.vault.amount,
     )?;
-    
 
     Ok(())
 }

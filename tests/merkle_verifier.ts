@@ -1,10 +1,10 @@
-import * as anchor from "@coral-xyz/anchor";
-import { Program, Provider } from "@project-serum/anchor";
-import { MerkleVerifier } from "../target/types/merkle_verifier";
-import { BalanceTree } from "./utils/balance_tree";
-import { createMint, createTokenAccount, toBytes32Array } from "./utils/utils";
+import * as anchor from '@coral-xyz/anchor';
+import { Program, Provider } from '@project-serum/anchor';
+import { MerkleVerifier } from '../target/types/merkle_verifier';
+import { BalanceTree } from './utils/balance_tree';
+import { createMint, createTokenAccount, toBytes32Array } from './utils/utils';
 
-describe("merkle_verifier", () => {
+describe('merkle_verifier', () => {
   // Configure the client to use the local cluster.
   anchor.setProvider(anchor.AnchorProvider.env());
 
@@ -12,7 +12,7 @@ describe("merkle_verifier", () => {
   const program = anchor.workspace.MerkleVerifier as Program<MerkleVerifier>;
   const distributorStateKeypair = anchor.web3.Keypair.generate();
 
-  it("Merkly Verify", async () => {
+  it('Merkly Verify', async () => {
     const kpOne = anchor.web3.Keypair.generate();
     const kpTwo = anchor.web3.Keypair.generate();
     const kpThree = anchor.web3.Keypair.generate();
@@ -27,28 +27,28 @@ describe("merkle_verifier", () => {
     ]);
 
     const tx = await program.methods.init(
-      toBytes32Array(tree.getRoot())
+      toBytes32Array(tree.getRoot()),
     )
-    .accounts({
-      payer: provider.publicKey,
-      distributor: distributorStateKeypair.publicKey,
-      systemProgram: anchor.web3.SystemProgram.programId,
-    })
-    .signers([distributorStateKeypair])
-    .rpc({ skipPreflight: true});
+      .accounts({
+        payer: provider.publicKey,
+        distributor: distributorStateKeypair.publicKey,
+        systemProgram: anchor.web3.SystemProgram.programId,
+      })
+      .signers([distributorStateKeypair])
+      .rpc({ skipPreflight: true });
 
-    console.log("Init signature", tx);
+    console.log('Init signature', tx);
 
     const index = 1;
     const proofStrings: Buffer[] = tree.getProof(index, kpTwo.publicKey, claimAmountTwo);
-    const proofBytes: number[][] = proofStrings.map((p) => toBytes32Array(p))
+    const proofBytes: number[][] = proofStrings.map((p) => toBytes32Array(p));
 
     let verificationData = Buffer.allocUnsafe(8);
     verificationData.writeBigUInt64LE(BigInt(index));
 
-    let [receipt, _receiptBump] = anchor.web3.PublicKey.findProgramAddressSync(
+    const [receipt, _receiptBump] = anchor.web3.PublicKey.findProgramAddressSync(
       [
-        Buffer.from(anchor.utils.bytes.utf8.encode("Receipt")),
+        Buffer.from(anchor.utils.bytes.utf8.encode('Receipt')),
         distributorStateKeypair.publicKey.toBuffer(),
         verificationData,
       ],
@@ -56,7 +56,7 @@ describe("merkle_verifier", () => {
     );
 
     for (const proofElem of proofBytes) {
-        verificationData = Buffer.concat([verificationData, Buffer.from(proofElem)]);
+      verificationData = Buffer.concat([verificationData, Buffer.from(proofElem)]);
     }
 
     const mint = await createMint(provider, provider.publicKey);
@@ -64,17 +64,17 @@ describe("merkle_verifier", () => {
     const recipientTokenAccount = await createTokenAccount(provider, mint, kpTwo.publicKey);
 
     const tx2 = await program.methods.verify(
-        claimAmountTwo,
-        verificationData
+      claimAmountTwo,
+      verificationData,
     )
-    .accounts({
+      .accounts({
         authority: provider.publicKey,
         verificationState: distributorStateKeypair.publicKey,
         recipient: recipientTokenAccount,
         receipt,
         systemProgram: anchor.web3.SystemProgram.programId,
       })
-    .rpc({ skipPreflight: true});
-    console.log("Verification signature", tx2);
+      .rpc({ skipPreflight: true });
+    console.log('Verification signature', tx2);
   });
 });

@@ -1,15 +1,15 @@
-import { Provider, BN } from "@project-serum/anchor";
-import { PublicKey } from "@solana/web3.js";
+import { Provider, BN } from '@project-serum/anchor';
+import { PublicKey } from '@solana/web3.js';
 
-const anchor = require("@project-serum/anchor");
-const { TokenInstructions } = require("@project-serum/serum");
+const anchor = require('@project-serum/anchor');
+const { TokenInstructions } = require('@project-serum/serum');
 
 const DEFAULT_MINT_DECIMALS = 6;
 
 async function createMintInstructions(
   provider: Provider,
   authority: PublicKey,
-  mint: PublicKey
+  mint: PublicKey,
 ) {
   const instructions = [
     anchor.web3.SystemProgram.createAccount({
@@ -30,7 +30,7 @@ async function createMintInstructions(
 
 export async function createMint(
   provider: Provider,
-  initialAuthority: PublicKey | undefined
+  initialAuthority: PublicKey | undefined,
 ) {
   let authority = initialAuthority;
   if (authority === undefined) {
@@ -40,7 +40,7 @@ export async function createMint(
   const instructions = await createMintInstructions(
     provider,
     authority,
-    mint.publicKey
+    mint.publicKey,
   );
 
   const tx = new anchor.web3.Transaction();
@@ -55,7 +55,7 @@ async function createMintToAccountInstrs(
   mint: PublicKey,
   destination: PublicKey,
   amount: BN,
-  mintAuthority: PublicKey
+  mintAuthority: PublicKey,
 ) {
   return [
     TokenInstructions.mintTo({
@@ -72,7 +72,7 @@ export async function mintToAccount(
   mint: PublicKey,
   destination: PublicKey,
   amount: BN,
-  mintAuthority: PublicKey
+  mintAuthority: PublicKey,
 ) {
   const tx = new anchor.web3.Transaction();
   tx.add(
@@ -80,8 +80,8 @@ export async function mintToAccount(
       mint,
       destination,
       amount,
-      mintAuthority
-    ))
+      mintAuthority,
+    )),
   );
   await provider.sendAndConfirm(tx, []);
 }
@@ -91,7 +91,7 @@ async function createTokenAccountInstrs(
   newAccountPubkey: PublicKey,
   mint: PublicKey,
   owner: PublicKey,
-  lamportsRequested: number
+  lamportsRequested: number,
 ) {
   let lamports = lamportsRequested;
   if (lamports === undefined) {
@@ -116,7 +116,7 @@ async function createTokenAccountInstrs(
 export async function createTokenAccount(
   provider: Provider,
   mint: PublicKey,
-  owner: PublicKey
+  owner: PublicKey,
 ) {
   const vault = anchor.web3.Keypair.generate();
   const tx = new anchor.web3.Transaction();
@@ -126,8 +126,8 @@ export async function createTokenAccount(
       vault.publicKey,
       mint,
       owner,
-      undefined
-    ))
+      undefined,
+    )),
   );
   await provider.sendAndConfirm(tx, [vault]);
   return vault.publicKey;

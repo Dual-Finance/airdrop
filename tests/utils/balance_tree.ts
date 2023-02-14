@@ -1,17 +1,16 @@
-import * as anchor from "@coral-xyz/anchor";
-import type { PublicKey } from "@solana/web3.js";
-import type BN from "bn.js";
-import { keccak_256 } from "js-sha3";
+import * as anchor from '@coral-xyz/anchor';
+import type { PublicKey } from '@solana/web3.js';
+import type BN from 'bn.js';
+import { keccak_256 } from 'js-sha3';
 
-import { MerkleTree } from "./merkle_tree";
+import { MerkleTree } from './merkle_tree';
 
 export class BalanceTree {
   private readonly _tree: MerkleTree;
+
   constructor(balances: { account: PublicKey; amount: BN }[]) {
     this._tree = new MerkleTree(
-      balances.map(({ account, amount }, index) => {
-        return BalanceTree.toNode(index, account, amount);
-      })
+      balances.map(({ account, amount }, index) => BalanceTree.toNode(index, account, amount)),
     );
   }
 
@@ -20,7 +19,7 @@ export class BalanceTree {
     account: PublicKey,
     amount: BN,
     proof: Buffer[],
-    root: Buffer
+    root: Buffer,
   ): boolean {
     let pair = BalanceTree.toNode(index, account, amount);
     for (const item of proof) {
@@ -32,11 +31,11 @@ export class BalanceTree {
 
   static toNode(index: number, account: PublicKey, amount: BN): Buffer {
     const buf = Buffer.concat([
-      new anchor.BN(index).toArrayLike(Buffer, "le", 8),
+      new anchor.BN(index).toArrayLike(Buffer, 'le', 8),
       account.toBuffer(),
-      new anchor.BN(amount).toArrayLike(Buffer, "le", 8),
+      new anchor.BN(amount).toArrayLike(Buffer, 'le', 8),
     ]);
-    return Buffer.from(keccak_256(buf), "hex");
+    return Buffer.from(keccak_256(buf), 'hex');
   }
 
   getHexRoot(): string {
