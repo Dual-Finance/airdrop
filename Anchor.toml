@@ -8,7 +8,7 @@ basic_verifier = "FEdxZUg4BtWvMy7gy7pXEoj1isqBRYmbYdpyZfq5QZYr"
 password_verifier = "EmsREpwoUtHnmg8aSCqmTFyfp71vnnFCdZozohcrZPeL"
 
 [provider]
-cluster = "devnet"
+cluster = "localnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]

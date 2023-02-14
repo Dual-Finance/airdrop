@@ -109,9 +109,8 @@ describe("airdrop", () => {
   );
 
   const passwordVerifier = new PublicKey('EmsREpwoUtHnmg8aSCqmTFyfp71vnnFCdZozohcrZPeL');
-  // TODO: Programmatically figure out the instruction data and fix this one
   const passwordVerifierInstruction = [133, 161, 141, 48, 120, 198, 88, 150];
-  const password = 'PASSWORD';
+  const PASSWORD = 'PASSWORD';
 
   it("PasswordConfigure", async () => {
     mint = await createMint(provider, provider.publicKey);
@@ -138,7 +137,7 @@ describe("airdrop", () => {
 
     console.log("Password init");
     const tx2 = await passwordVerifierProgram.methods.init(
-      password 
+      PASSWORD 
     )
     .accounts({
       authority: provider.publicKey,
@@ -158,7 +157,7 @@ describe("airdrop", () => {
     const recipient = await createTokenAccount(provider, mint, provider.publicKey);
 
     console.log("Password claim");
-    const verifierData = Buffer.from(password);
+    const verifierData = Buffer.from(PASSWORD);
     const tx = await program.methods.claim(
       amount,
       verifierData
