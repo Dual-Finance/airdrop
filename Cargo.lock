@@ -1307,6 +1307,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "password_verifier"
+version = "0.1.0"
+dependencies = [
+ "anchor-lang",
+ "anchor-spl",
+ "solana-program",
+]
+
+[[package]]
 name = "paste"
 version = "1.0.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"

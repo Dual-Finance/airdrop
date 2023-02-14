@@ -23,11 +23,12 @@ pub struct Claim<'info> {
     #[account(mut)]
     pub recipient: Account<'info, TokenAccount>,
 
-    /// CHECK: we want this be permissionless
+    #[account(mut, constraint = verifier_program.key.as_ref() == state.verifier_program.key().as_ref())]
+    /// CHECK: Verified in the verifier.
     pub verifier_program: UncheckedAccount<'info>,
 
-    #[account(mut)]
-    /// CHECK: we want this be permissionless
+    #[account(mut, constraint = verifier_state.key.as_ref() == state.verifier_state.key().as_ref())]
+    /// CHECK: Verified in the verifier.
     pub verifier_state: UncheckedAccount<'info>,
 
     pub token_program: Program<'info, Token>,

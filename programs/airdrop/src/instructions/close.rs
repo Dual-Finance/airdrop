@@ -16,7 +16,7 @@ pub struct Close<'info> {
 
     #[account(
         mut,
-        seeds = [b"State".as_ref(), state.key().as_ref()],
+        seeds = [b"Vault".as_ref(), state.key().as_ref()],
         bump,
     )]
     pub vault: Account<'info, TokenAccount>,
