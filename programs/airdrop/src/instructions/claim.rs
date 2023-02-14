@@ -62,7 +62,7 @@ pub fn handle_claim<'info>(
     verifier_data_with_prefix.extend_from_slice(&mut amount.to_le_bytes());
 
     // Put in the vec length prefix.
-    verifier_data_with_prefix.append(&mut verifier_data.clone().try_to_vec().unwrap());
+    verifier_data_with_prefix.append(&mut verifier_data.try_to_vec().unwrap());
 
     let ix = solana_program::instruction::Instruction::new_with_bytes(
         *ctx.accounts.verifier_program.key,
@@ -75,7 +75,7 @@ pub fn handle_claim<'info>(
         ctx.accounts.verifier_state.clone().to_account_info(),
         ctx.accounts.recipient.clone().to_account_info(),
     ];
-    for remaining_acct in ctx.remaining_accounts.clone() {
+    for remaining_acct in ctx.remaining_accounts {
         account_infos.push(remaining_acct.clone().to_account_info());
     }
 
