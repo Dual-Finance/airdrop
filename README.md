@@ -23,4 +23,4 @@ This example verifier uses the verification data and verification state to make 
 
 ## merkle_distributor
 
-This example program verifies the amount as well as the recipient in addition to the verification state and data. It also uses one of the remaining_accounts to verify that the recipient only receives the airdrop once. This is likely how projects will want to do an airdrop if they have a predetermined list of recipients and amounts.
+This example program verifies the amount as well as the recipient in addition to the verification state and data. It also uses one of the remaining_accounts to verify that the recipient only receives the airdrop once. This is likely how projects will want to do an airdrop if they have a predetermined list of recipients and amounts. 
