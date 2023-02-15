@@ -11,16 +11,25 @@ The main program is airdrop, but there are additional verifiers provided as exam
 
 ## airdrop
 
-Main program. Three instructions are configure, claim, and close. Examples of how to use them are in the tests.
+Main program. Three instructions are configure, claim, and close. Examples of
+how to use them are in the tests.
 
 ## basic_verifier
 
-This example verifier does not use the verification state, the verification data passed in, the amount requested, or the recipient. It always approves. This is the simplest example for testing.
+This example verifier does not use the verification state, the verification data
+passed in, the amount requested, or the recipient. It always approves. This is
+the simplest example for testing.
 
 ## password
 
-This example verifier uses the verification data and verification state to make sure that the password provided passes verification. This demonstrates using the input data and a state for the verifier.
+This example verifier uses the verification data and verification state to make
+sure that the password provided passes verification. This demonstrates using the
+input data and a state for the verifier.
 
 ## merkle_distributor
 
-This example program verifies the amount as well as the recipient in addition to the verification state and data. It also uses one of the remaining_accounts to verify that the recipient only receives the airdrop once. This is likely how projects will want to do an airdrop if they have a predetermined list of recipients and amounts.
+This example program verifies the amount as well as the recipient in addition to
+the verification state and data. It also uses one of the remaining_accounts to
+verify that the recipient only is not able to repeat a claim. This is likely how
+projects will want to do an airdrop if they have a predetermined list of
+recipients and amounts.
