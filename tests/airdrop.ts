@@ -38,7 +38,7 @@ describe('airdrop', () => {
     mint = await createMint(provider, provider.publicKey);
 
     console.log('Basic configure');
-    const tx = await program.methods.configure(
+    const basicConfigureTx = await program.methods.configure(
       basicVerifierInstruction,
     )
       .accounts({
@@ -55,7 +55,7 @@ describe('airdrop', () => {
       .signers([basicState])
       .rpc({ skipPreflight: true });
 
-    console.log('Config signature', tx);
+    console.log('Config signature', basicConfigureTx);
   });
 
   it('BasicClaim', async () => {
@@ -120,7 +120,7 @@ describe('airdrop', () => {
     mint = await createMint(provider, provider.publicKey);
 
     console.log('Password configure');
-    const tx = await program.methods.configure(
+    const passwordConfigureTx = await program.methods.configure(
       passwordVerifierInstruction,
     )
       .accounts({
@@ -137,10 +137,10 @@ describe('airdrop', () => {
       .signers([passwordState])
       .rpc({ skipPreflight: true });
 
-    console.log('Config signature', tx);
+    console.log('Config signature', passwordConfigureTx);
 
     console.log('Password init');
-    const tx2 = await passwordVerifierProgram.methods.init(
+    const passwordInitTx = await passwordVerifierProgram.methods.init(
       PASSWORD,
     )
       .accounts({
@@ -152,7 +152,7 @@ describe('airdrop', () => {
       .signers([passwordVerifierState])
       .rpc({ skipPreflight: true });
 
-    console.log('Password init', tx2);
+    console.log('Password init', passwordInitTx);
   });
 
   it('PasswordClaim', async () => {
@@ -162,7 +162,7 @@ describe('airdrop', () => {
 
     console.log('Password claim');
     const verifierData = Buffer.from(PASSWORD);
-    const tx = await program.methods.claim(
+    const passwordClaimTx = await program.methods.claim(
       amount,
       verifierData,
     )
@@ -177,7 +177,7 @@ describe('airdrop', () => {
       })
       .rpc({ skipPreflight: true });
 
-    console.log('Claim signature', tx);
+    console.log('Claim signature', passwordClaimTx);
   });
 
   const merkleVerifier = new PublicKey('4ibGmfZ6WU9qDc231sTRsTTHoDjQ1L6wxkrEAiEvKfLm');
@@ -207,7 +207,7 @@ describe('airdrop', () => {
 
   it('MerkleConfigure', async () => {
     console.log('Merkle configure');
-    const tx = await merkleVerifierProgram.methods.init(
+    const merkleInitTx = await merkleVerifierProgram.methods.init(
       toBytes32Array(tree.getRoot()),
     )
       .accounts({
@@ -217,9 +217,9 @@ describe('airdrop', () => {
       })
       .signers([merkleVerifierStateKeypair])
       .rpc({ skipPreflight: true });
-    console.log('Merkle init', tx);
+    console.log('Merkle init', merkleInitTx);
 
-    const tx2 = await program.methods.configure(
+    const merkleConfigureTx = await program.methods.configure(
       merkleVerifierInstruction,
     )
       .accounts({
@@ -236,21 +236,26 @@ describe('airdrop', () => {
       .signers([merkleState])
       .rpc({ skipPreflight: true });
 
-    console.log('Merkle config signature', tx2);
+    console.log('Merkle config signature', merkleConfigureTx);
   });
 
   it('MerkleClaim', async () => {
     await mintToAccount(provider, mint, merkleVault, amount, provider.publicKey);
 
-    const recipient = await createTokenAccount(provider, mint, kpTwo.publicKey);
-
+    const claimer = kpTwo.publicKey;
+    const claimAmount = claimAmountTwo;
     const index = 1;
-    const proofStrings: Buffer[] = tree.getProof(index, kpTwo.publicKey, claimAmountTwo);
+
+    const recipient = await createTokenAccount(provider, mint, claimer);
+
+    const proofStrings: Buffer[] = tree.getProof(index, claimer, claimAmount);
     const proofBytes: number[][] = proofStrings.map((p) => toBytes32Array(p));
 
     let verificationData: Buffer = Buffer.allocUnsafe(8);
     verificationData.writeBigUInt64LE(BigInt(index));
 
+    // Calculate the receipt here because the verification data conveniently is
+    // a buffer with just index.
     const [receipt, _receiptBump] = anchor.web3.PublicKey.findProgramAddressSync(
       [
         Buffer.from(anchor.utils.bytes.utf8.encode('Receipt')),
@@ -265,8 +270,8 @@ describe('airdrop', () => {
     }
 
     console.log('Merkle claim');
-    const tx = await program.methods.claim(
-      claimAmountTwo,
+    const merkleClaimTx = await program.methods.claim(
+      claimAmount,
       verificationData,
     )
       .accounts({
@@ -292,14 +297,16 @@ describe('airdrop', () => {
       ])
       .rpc({ skipPreflight: true });
 
-    console.log('Merkle claim signature', tx);
+    console.log('Merkle claim signature', merkleClaimTx);
   });
 
   it('AnotherMerkleClaim', async () => {
-    const recipient = await createTokenAccount(provider, mint, kpThree.publicKey);
-
+    const claimer = kpThree.publicKey;
+    const claimAmount = claimAmountThree;
     const index = 2;
-    const proofStrings: Buffer[] = tree.getProof(index, kpThree.publicKey, claimAmountThree);
+
+    const recipient = await createTokenAccount(provider, mint, claimer);
+    const proofStrings: Buffer[] = tree.getProof(index, claimer, claimAmount);
     const proofBytes: number[][] = proofStrings.map((p) => toBytes32Array(p));
 
     let verificationData: Buffer = Buffer.allocUnsafe(8);
@@ -319,8 +326,8 @@ describe('airdrop', () => {
     }
 
     console.log('Merkle claim');
-    const tx = await program.methods.claim(
-      claimAmountThree,
+    const merkleClaimTx = await program.methods.claim(
+      claimAmount,
       verificationData,
     )
       .accounts({
@@ -346,14 +353,16 @@ describe('airdrop', () => {
       ])
       .rpc({ skipPreflight: true });
 
-    console.log('Merkle claim signature', tx);
+    console.log('Merkle claim signature', merkleClaimTx);
   });
 
   it('MerkleReclaimFail', async () => {
-    const recipient = await createTokenAccount(provider, mint, kpThree.publicKey);
-
+    const claimer = kpThree.publicKey;
+    const claimAmount = claimAmountThree;
     const index = 2;
-    const proofStrings: Buffer[] = tree.getProof(index, kpThree.publicKey, claimAmountThree);
+
+    const recipient = await createTokenAccount(provider, mint, claimer);
+    const proofStrings: Buffer[] = tree.getProof(index, claimer, claimAmount);
     const proofBytes: number[][] = proofStrings.map((p) => toBytes32Array(p));
 
     let verificationData: Buffer = Buffer.allocUnsafe(8);
@@ -375,7 +384,69 @@ describe('airdrop', () => {
     try {
       console.log('Merkle claim');
       await program.methods.claim(
-        claimAmountThree,
+        claimAmount,
+        verificationData,
+      )
+        .accounts({
+          authority: provider.publicKey,
+          state: merkleState.publicKey,
+          vault: merkleVault,
+          recipient,
+          verifierProgram: merkleVerifier,
+          verifierState: merkleVerifierStateKeypair.publicKey,
+          tokenProgram: TOKEN_PROGRAM_ID,
+        })
+        .remainingAccounts([
+          {
+            pubkey: receipt,
+            isWritable: true,
+            isSigner: false,
+          },
+          {
+            pubkey: anchor.web3.SystemProgram.programId,
+            isWritable: false,
+            isSigner: false,
+          },
+        ])
+        .rpc({ skipPreflight: true });
+      assert(false);
+    } catch (err) {
+      assert(true);
+    }
+  });
+
+  it('MerkleClaimWrongAmount', async () => {
+    const claimer = kpOne.publicKey;
+    const claimAmount = claimAmountOne;
+    const index = 0;
+
+    const recipient = await createTokenAccount(provider, mint, claimer);
+    const proofStrings: Buffer[] = tree.getProof(index, claimer, claimAmount);
+    const proofBytes: number[][] = proofStrings.map((p) => toBytes32Array(p));
+
+    let verificationData: Buffer = Buffer.allocUnsafe(8);
+    verificationData.writeBigUInt64LE(BigInt(index));
+
+    // Calculate the receipt here because the verification data conveniently is
+    // a buffer with just index.
+    const [receipt, _receiptBump] =
+    anchor.web3.PublicKey.findProgramAddressSync(
+      [
+        Buffer.from(anchor.utils.bytes.utf8.encode('Receipt')),
+        merkleVerifierStateKeypair.publicKey.toBuffer(),
+        verificationData,
+      ],
+      merkleVerifierProgram.programId,
+    );
+
+    for (const proofElem of proofBytes) {
+      verificationData = Buffer.concat([verificationData, Buffer.from(proofElem)]);
+    }
+
+    try {
+      console.log('Merkle claim wrong amount');
+      await program.methods.claim(
+        new anchor.BN(1_000_000),
         verificationData,
       )
         .accounts({
