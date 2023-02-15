@@ -34,4 +34,4 @@ verify that the recipient only is not able to repeat a claim. This is likely how
 projects will want to do an airdrop if they have a predetermined list of
 recipients and amounts.
 
-Based off of [merkle-distributor](https://github.com/saber-hq/merkle-distributor)
+Modification of [merkle-distributor](https://github.com/saber-hq/merkle-distributor)
