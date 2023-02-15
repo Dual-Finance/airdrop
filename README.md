@@ -33,3 +33,5 @@ the verification state and data. It also uses one of the remaining_accounts to
 verify that the recipient only is not able to repeat a claim. This is likely how
 projects will want to do an airdrop if they have a predetermined list of
 recipients and amounts.
+
+Based off of [https://github.com/saber-hq/merkle-distributor](merkle-distributor)
