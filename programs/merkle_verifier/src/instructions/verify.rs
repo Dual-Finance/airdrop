@@ -9,7 +9,7 @@ pub struct Verify<'info> {
     pub authority: Signer<'info>,
 
     /// Used to get the root for validation.
-    pub verification_state: Account<'info, MerkleDistributor>,
+    pub verification_state: Account<'info, VerifierState>,
 
     /// Recipient owner is part of the leaf node.
     pub recipient: Account<'info, TokenAccount>,
@@ -57,9 +57,10 @@ pub fn handle_verify(ctx: Context<Verify>, amount: u64, verification_data: Vec<u
         msg!("Proof hash {:02X?}", next_hash);
     }
 
+    // This is the actual verification.
     verify_proof(proof, ctx.accounts.verification_state.root, leaf);
 
-    // Fill in the receipt. Just the presences of this object makes another
+    // Fill in the receipt. Just the presence of this object makes another
     // attempt at verify fail.
     ctx.accounts.receipt.index = index;
     ctx.accounts.receipt.recipient = ctx.accounts.recipient.owner.key();

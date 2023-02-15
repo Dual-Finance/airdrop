@@ -7,7 +7,7 @@ pub mod basic_verifier {
     use super::*;
 
     pub fn verify(_ctx: Context<Verify>, amount: u64, _verification_data: Vec<u8>) -> Result<()> {
-        msg!("Verifying {}", amount);
+        msg!("Verifying amount {}", amount);
         // Always returns true
         Ok(())
     }

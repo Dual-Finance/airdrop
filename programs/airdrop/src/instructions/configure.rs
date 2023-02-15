@@ -17,7 +17,7 @@ pub struct Configure<'info> {
     )]
     pub state: Account<'info, State>,
 
-    /// Expects the caller to fill it.
+    /// Expects the caller to fill it after configure.
     #[account(
         init,
         payer = payer,
@@ -29,9 +29,9 @@ pub struct Configure<'info> {
     pub vault: Account<'info, TokenAccount>,
     pub mint: Box<Account<'info, Mint>>,
 
-    /// CHECK: we want this be permissionless
+    /// CHECK: Will be verified when used in cpi.
     pub verifier_program: UncheckedAccount<'info>,
-    /// CHECK: we want this be permissionless
+    /// CHECK: Will be verified in the verifier_program.
     pub verifier_state: UncheckedAccount<'info>,
 
     pub token_program: Program<'info, Token>,
@@ -48,7 +48,6 @@ pub fn handle_configure(
     ctx.accounts.state.verifier_instruction_prefix = verifier_instruction_prefix;
     ctx.accounts.state.vault = ctx.accounts.vault.key();
     ctx.accounts.state.vault_bump = *ctx.bumps.get("vault").unwrap();
-
     ctx.accounts.state.close_authority = ctx.accounts.payer.key();
 
     Ok(())

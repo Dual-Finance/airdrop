@@ -11,7 +11,7 @@ pub struct State {
     pub verifier_state: Pubkey,
     pub verifier_instruction_prefix: [u8; 8],
 
-    /// Tokens to be airdropped and the bump for the account.
+    /// Tokens to be airdropped and the bump for the token account.
     pub vault: Pubkey,
     pub vault_bump: u8,
 

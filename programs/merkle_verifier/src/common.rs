@@ -16,10 +16,9 @@ pub fn verify_proof(proof: Vec<[u8; 32]>, root: [u8; 32], leaf: [u8; 32]) {
     assert_eq!(current_hash, root)
 }
 
-/// State for the account which distributes tokens.
+/// State for the verifier which 
 #[account]
-pub struct MerkleDistributor {
-    /// The 256-bit merkle root.
+pub struct VerifierState {
     pub root: [u8; 32],
 }
 

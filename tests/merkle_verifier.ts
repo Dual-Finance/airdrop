@@ -10,7 +10,7 @@ describe('merkle_verifier', () => {
 
   const provider: Provider = anchor.AnchorProvider.env();
   const program = anchor.workspace.MerkleVerifier as Program<MerkleVerifier>;
-  const distributorStateKeypair = anchor.web3.Keypair.generate();
+  const stateKeypair = anchor.web3.Keypair.generate();
 
   it('Merkly Verify', async () => {
     const kpOne = anchor.web3.Keypair.generate();
@@ -31,10 +31,10 @@ describe('merkle_verifier', () => {
     )
       .accounts({
         payer: provider.publicKey,
-        distributor: distributorStateKeypair.publicKey,
+        state: stateKeypair.publicKey,
         systemProgram: anchor.web3.SystemProgram.programId,
       })
-      .signers([distributorStateKeypair])
+      .signers([stateKeypair])
       .rpc({ skipPreflight: true });
 
     console.log('Init signature', tx);
@@ -49,7 +49,7 @@ describe('merkle_verifier', () => {
     const [receipt, _receiptBump] = anchor.web3.PublicKey.findProgramAddressSync(
       [
         Buffer.from(anchor.utils.bytes.utf8.encode('Receipt')),
-        distributorStateKeypair.publicKey.toBuffer(),
+        stateKeypair.publicKey.toBuffer(),
         verificationData,
       ],
       program.programId,
@@ -69,7 +69,7 @@ describe('merkle_verifier', () => {
     )
       .accounts({
         authority: provider.publicKey,
-        verificationState: distributorStateKeypair.publicKey,
+        verificationState: stateKeypair.publicKey,
         recipient: recipientTokenAccount,
         receipt,
         systemProgram: anchor.web3.SystemProgram.programId,

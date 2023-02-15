@@ -8,16 +8,16 @@ pub struct Init<'info> {
 
     #[account(
         init,
-        space = 8 + std::mem::size_of::<MerkleDistributor>(),
+        space = 8 + std::mem::size_of::<VerifierState>(),
         payer = payer
     )]
-    pub distributor: Account<'info, MerkleDistributor>,
+    pub state: Account<'info, VerifierState>,
 
     pub system_program: Program<'info, System>,
 }
 
 pub fn handle_init(ctx: Context<Init>, root: [u8; 32]) -> Result<()> {
-    ctx.accounts.distributor.root = root;
+    ctx.accounts.state.root = root;
 
     Ok(())
 }

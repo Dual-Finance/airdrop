@@ -213,7 +213,7 @@ describe('airdrop', () => {
     )
       .accounts({
         payer: provider.publicKey,
-        distributor: merkleVerifierStateKeypair.publicKey,
+        state: merkleVerifierStateKeypair.publicKey,
         systemProgram: anchor.web3.SystemProgram.programId,
       })
       .signers([merkleVerifierStateKeypair])

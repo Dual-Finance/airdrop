@@ -14,7 +14,7 @@ pub struct Claim<'info> {
 
     pub state: Account<'info, State>,
 
-    /// Expected to already be initialized and filled.
+    /// Expected to already be filled.
     #[account(
         mut,
         seeds = [VAULT_SEED.as_ref(), state.key().as_ref()],
@@ -44,10 +44,12 @@ pub fn handle_claim<'info>(
     msg!("Handling claim");
 
     let mut verifier_accounts: Vec<AccountMeta> = Vec::new();
-    // Assume they all are mutable and not signers.
+    // Authority is a signer, the other accounts are not. All inherit mutability.
     verifier_accounts.push(AccountMeta::new(*ctx.accounts.authority.key, true));
     verifier_accounts.push(AccountMeta::new(*ctx.accounts.verifier_state.key, false));
     verifier_accounts.push(AccountMeta::new(ctx.accounts.recipient.key(), false));
+
+    // For the remaining_accounts, pass through is_signer and is_mutable.
     for acct in ctx.remaining_accounts {
         let signer = acct.is_signer;
         if acct.is_writable {
@@ -82,7 +84,7 @@ pub fn handle_claim<'info>(
     // This is the actual verification. If it fails, then do not proceed.
     solana_program::program::invoke(&ix, &account_infos)?;
 
-    // Transfer the tokens
+    // Transfer the tokens to the claimant.
     anchor_spl::token::transfer(
         CpiContext::new_with_signer(
             ctx.accounts.token_program.to_account_info(),
