@@ -12,7 +12,6 @@ import { MerkleVerifier } from '../target/types/merkle_verifier';
 import { BalanceTree } from './utils/balance_tree';
 
 describe('airdrop', () => {
-  // Configure the client to use the local cluster.
   anchor.setProvider(anchor.AnchorProvider.env());
   const provider: Provider = anchor.AnchorProvider.env();
   const program = anchor.workspace.Airdrop as Program<Airdrop>;

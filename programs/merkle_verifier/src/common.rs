@@ -16,7 +16,7 @@ pub fn verify_proof(proof: Vec<[u8; 32]>, root: [u8; 32], leaf: [u8; 32]) {
     assert_eq!(current_hash, root)
 }
 
-/// State for the verifier which 
+/// State for the verifier which
 #[account]
 pub struct VerifierState {
     pub root: [u8; 32],
