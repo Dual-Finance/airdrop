@@ -429,8 +429,7 @@ describe('airdrop', () => {
 
     // Calculate the receipt here because the verification data conveniently is
     // a buffer with just index.
-    const [receipt, _receiptBump] =
-    anchor.web3.PublicKey.findProgramAddressSync(
+    const [receipt, _receiptBump] = anchor.web3.PublicKey.findProgramAddressSync(
       [
         Buffer.from(anchor.utils.bytes.utf8.encode('Receipt')),
         merkleVerifierStateKeypair.publicKey.toBuffer(),
