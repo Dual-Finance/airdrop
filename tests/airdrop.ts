@@ -9,7 +9,10 @@ import {
 } from './utils/utils';
 import { PasswordVerifier } from '../target/types/password_verifier';
 import { MerkleVerifier } from '../target/types/merkle_verifier';
+// @ts-ignore
+import * as governance_verifier_idl from './governance_verifier.json';
 import { BalanceTree } from './utils/balance_tree';
+import { Idl } from '@project-serum/anchor';
 
 describe('airdrop', () => {
   anchor.setProvider(anchor.AnchorProvider.env());
@@ -17,6 +20,7 @@ describe('airdrop', () => {
   const program = anchor.workspace.Airdrop as Program<Airdrop>;
   const passwordVerifierProgram = anchor.workspace.PasswordVerifier as Program<PasswordVerifier>;
   const merkleVerifierProgram = anchor.workspace.MerkleVerifier as Program<MerkleVerifier>;
+  const governanceVerifierProgram = new Program(governance_verifier_idl as Idl, new PublicKey('ATCsJvzSbHaJj3a9uKTRHSoD8ZmWPfeC3sYxzcJJHTM5'), provider);
   const amount = new anchor.BN(1_000_000);
   let mint: PublicKey;
 
@@ -474,5 +478,128 @@ describe('airdrop', () => {
     } catch (err) {
       assert(true);
     }
+  });
+
+  const governanceVerifier = new PublicKey('ATCsJvzSbHaJj3a9uKTRHSoD8ZmWPfeC3sYxzcJJHTM5');
+  const governanceVerifierInstruction = [133, 161, 141, 48, 120, 198, 88, 150];
+
+  it('GovernanceClaim', async () => {
+    const eligibilityStart = new anchor.BN(0);
+    const eligibilityEnd = new anchor.BN(2_000_000_000);
+  
+    const stateKeypair = anchor.web3.Keypair.generate();
+    const governanceStateKeypair = anchor.web3.Keypair.generate();
+    const proposal = new PublicKey(
+      '6ws4bv5CefMwVXi54fMc6c7VU1RrT3QxYYeGzQMiVp4Z',
+    );
+    const voteRecord = new PublicKey(
+      'BsGL7UwBT9ojUTMgtYh6foZrbWVnJvBBpsprdjkswVA1',
+    );
+    const governance = new PublicKey(
+      'Dg31swH4qLRzqgFsDZb3eME1QvwgAXnzA1Awtwgh3oc4',
+    );
+    const governanceRecipient = new PublicKey(
+      '2qLWeNrV7QkHQvKBoEvXrKeLqEB2ZhscZd4ds7X2JUhn',
+    );
+    const [governanceVault, _governanceBump] = anchor.web3.PublicKey.findProgramAddressSync(
+      [
+        Buffer.from(anchor.utils.bytes.utf8.encode('Vault')),
+        stateKeypair.publicKey.toBuffer(),
+      ],
+      program.programId,
+    );
+
+    console.log('Configuring');
+    const configureTx = await governanceVerifierProgram.methods
+      .configure(amount, eligibilityStart, eligibilityEnd)
+      .accounts({
+        payer: provider.publicKey,
+        state: governanceStateKeypair.publicKey,
+        governance,
+        systemProgram: anchor.web3.SystemProgram.programId,
+      })
+      .signers([governanceStateKeypair])
+      .rpc({ skipPreflight: true });
+
+    console.log('Configure signature', configureTx);
+
+    const governanceConfigureTx = await program.methods.configure(
+      governanceVerifierInstruction,
+    )
+      .accounts({
+        payer: provider.publicKey,
+        state: stateKeypair.publicKey,
+        verifierProgram: governanceVerifier,
+        vault: governanceVault,
+        mint,
+        verifierState: governanceStateKeypair.publicKey,
+        tokenProgram: TOKEN_PROGRAM_ID,
+        systemProgram: anchor.web3.SystemProgram.programId,
+        rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+      })
+      .signers([stateKeypair])
+      .rpc({ skipPreflight: true });
+
+    console.log('Governance config signature', governanceConfigureTx);
+
+    await mintToAccount(provider, mint, governanceVault, amount, provider.publicKey);
+    const recipient = await createTokenAccount(provider, mint, governanceRecipient);
+
+    try {
+      const [receipt, _receiptBump] = anchor.web3.PublicKey.findProgramAddressSync(
+        [
+          Buffer.from(anchor.utils.bytes.utf8.encode('Receipt')),
+          governanceStateKeypair.publicKey.toBuffer(),
+          voteRecord.toBuffer(),
+        ],
+        governanceVerifierProgram.programId,
+      );
+      const governanceClaimTx = await program.methods.claim(
+        amount,
+        Buffer.alloc(0),
+      )
+      .accounts({
+        authority: provider.publicKey,
+        state: stateKeypair.publicKey,
+        vault: governanceVault,
+        recipient,
+        verifierProgram: governanceVerifier,
+        verifierState: governanceStateKeypair.publicKey,
+        tokenProgram: TOKEN_PROGRAM_ID,
+      })
+      .remainingAccounts([
+        {
+          pubkey: governance,
+          isWritable: true,
+          isSigner: false,
+        },
+        {
+          pubkey: proposal,
+          isWritable: true,
+          isSigner: false,
+        },
+        {
+          pubkey: voteRecord,
+          isWritable: true,
+          isSigner: false,
+        },
+        {
+          pubkey: receipt,
+          isWritable: true,
+          isSigner: false,
+        },
+        {
+          pubkey: anchor.web3.SystemProgram.programId,
+          isWritable: false,
+          isSigner: false,
+        },
+      ])
+      .rpc({ skipPreflight: true });
+      console.log('Governance claim signature', governanceClaimTx);
+    } catch(err) {
+      console.log(err);
+      assert(false);
+    }
+
   });
 });
