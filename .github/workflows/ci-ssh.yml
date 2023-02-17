@@ -1,0 +1,13 @@
+name: SSH
+on: [workflow_dispatch]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: projectserum/build:v0.24.2
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        with:
+          sudo: false

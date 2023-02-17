@@ -4,7 +4,7 @@ on:
     branches: master
   workflow_dispatch:
 jobs:
-  build:
+  anchor_test:
     runs-on: ubuntu-latest
     container: projectserum/build:v0.26.0
 
@@ -22,11 +22,7 @@ jobs:
       - name: Check solana config
         run: solana config get
       - name: Install yarn dependencies
-        run: |
-          yarn install
-          yarn add ts-mocha
-      - name: Build
-        run: anchor build
+        run: yarn install
 
       - uses: nick-fields/retry@v2
         with:
