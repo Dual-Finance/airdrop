@@ -4,6 +4,7 @@ module.exports = {
     es2021: true,
     mocha: true,
   },
+  ignorePatterns: ["**/*json"],
   extends: [
     'airbnb-base',
     'plugin:import/typescript',

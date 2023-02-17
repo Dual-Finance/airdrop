@@ -3,6 +3,7 @@ import assert from 'assert';
 import { Provider, Program } from '@coral-xyz/anchor';
 import { PublicKey } from '@solana/web3.js';
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
+import { Idl } from '@project-serum/anchor';
 import { Airdrop } from '../target/types/airdrop';
 import {
   createMint, createTokenAccount, mintToAccount, toBytes32Array,
@@ -12,7 +13,6 @@ import { MerkleVerifier } from '../target/types/merkle_verifier';
 // @ts-ignore
 import * as governance_verifier_idl from './governance_verifier.json';
 import { BalanceTree } from './utils/balance_tree';
-import { Idl } from '@project-serum/anchor';
 
 describe('airdrop', () => {
   anchor.setProvider(anchor.AnchorProvider.env());
@@ -486,7 +486,7 @@ describe('airdrop', () => {
   it('GovernanceClaim', async () => {
     const eligibilityStart = new anchor.BN(0);
     const eligibilityEnd = new anchor.BN(2_000_000_000);
-  
+
     const stateKeypair = anchor.web3.Keypair.generate();
     const governanceStateKeypair = anchor.web3.Keypair.generate();
     const proposal = new PublicKey(
@@ -558,48 +558,47 @@ describe('airdrop', () => {
         amount,
         Buffer.alloc(0),
       )
-      .accounts({
-        authority: provider.publicKey,
-        state: stateKeypair.publicKey,
-        vault: governanceVault,
-        recipient,
-        verifierProgram: governanceVerifier,
-        verifierState: governanceStateKeypair.publicKey,
-        tokenProgram: TOKEN_PROGRAM_ID,
-      })
-      .remainingAccounts([
-        {
-          pubkey: governance,
-          isWritable: true,
-          isSigner: false,
-        },
-        {
-          pubkey: proposal,
-          isWritable: true,
-          isSigner: false,
-        },
-        {
-          pubkey: voteRecord,
-          isWritable: true,
-          isSigner: false,
-        },
-        {
-          pubkey: receipt,
-          isWritable: true,
-          isSigner: false,
-        },
-        {
-          pubkey: anchor.web3.SystemProgram.programId,
-          isWritable: false,
-          isSigner: false,
-        },
-      ])
-      .rpc({ skipPreflight: true });
+        .accounts({
+          authority: provider.publicKey,
+          state: stateKeypair.publicKey,
+          vault: governanceVault,
+          recipient,
+          verifierProgram: governanceVerifier,
+          verifierState: governanceStateKeypair.publicKey,
+          tokenProgram: TOKEN_PROGRAM_ID,
+        })
+        .remainingAccounts([
+          {
+            pubkey: governance,
+            isWritable: true,
+            isSigner: false,
+          },
+          {
+            pubkey: proposal,
+            isWritable: true,
+            isSigner: false,
+          },
+          {
+            pubkey: voteRecord,
+            isWritable: true,
+            isSigner: false,
+          },
+          {
+            pubkey: receipt,
+            isWritable: true,
+            isSigner: false,
+          },
+          {
+            pubkey: anchor.web3.SystemProgram.programId,
+            isWritable: false,
+            isSigner: false,
+          },
+        ])
+        .rpc({ skipPreflight: true });
       console.log('Governance claim signature', governanceClaimTx);
-    } catch(err) {
+    } catch (err) {
       console.log(err);
       assert(false);
     }
-
   });
 });
