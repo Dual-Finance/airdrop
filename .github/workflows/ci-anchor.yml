@@ -27,10 +27,8 @@ jobs:
         run: solana --version
       - name: Upgrade solana
         run: sh -c "$(curl -sSfL https://release.solana.com/v1.14.2/install)"
-      - name: Set path
-        run: export PATH="/github/home/.local/share/solana/install/active_release/bin:$PATH"
-      - name: Set path
-        run: PATH="/github/home/.local/share/solana/install/active_release/bin:$PATH"
+      - name: Update path
+        run: echo "/github/home/.local/share/solana/install/active_release/bin:$PATH" >> $GITHUB_PATH
       - name: Echo path
         run: echo $PATH
       - name: Solana version
