@@ -1,5 +1,5 @@
 use anchor_lang::prelude::*;
-use std::str;
+use anchor_lang::solana_program::keccak::*;
 
 declare_id!("EmsREpwoUtHnmg8aSCqmTFyfp71vnnFCdZozohcrZPeL");
 
@@ -7,15 +7,16 @@ declare_id!("EmsREpwoUtHnmg8aSCqmTFyfp71vnnFCdZozohcrZPeL");
 pub mod password_verifier {
     use super::*;
 
-    pub fn init(ctx: Context<Init>, password: String) -> Result<()> {
-        ctx.accounts.verification_state.password = password;
+    pub fn init(ctx: Context<Init>, password_hash: [u8; 32]) -> Result<()> {
+        ctx.accounts.verification_state.password_hash = password_hash;
         Ok(())
     }
 
     pub fn verify(ctx: Context<Verify>, _amount: u64, verification_data: Vec<u8>) -> Result<()> {
+        let verification_data_slice: &[u8] = verification_data.as_slice();
         assert_eq!(
-            ctx.accounts.verification_state.password,
-            str::from_utf8(&verification_data).unwrap()
+            hashv(&[verification_data_slice]).as_ref(),
+            ctx.accounts.verification_state.password_hash,
         );
         Ok(())
     }
@@ -23,11 +24,11 @@ pub mod password_verifier {
 
 #[account]
 pub struct VerificationState {
-    pub password: String,
+    pub password_hash: [u8; 32],
 }
 
 #[derive(Accounts)]
-#[instruction(password: String)]
+#[instruction(password_hash: [u8; 32])]
 pub struct Init<'info> {
     #[account(mut)]
     pub authority: Signer<'info>,

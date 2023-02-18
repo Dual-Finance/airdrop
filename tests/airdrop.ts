@@ -4,6 +4,7 @@ import { Provider, Program } from '@coral-xyz/anchor';
 import { PublicKey } from '@solana/web3.js';
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { Idl } from '@project-serum/anchor';
+import { keccak_256 } from 'js-sha3';
 import { Airdrop } from '../target/types/airdrop';
 import {
   createMint, createTokenAccount, mintToAccount, toBytes32Array,
@@ -145,7 +146,8 @@ describe('airdrop', () => {
 
     console.log('Password init');
     const passwordInitTx = await passwordVerifierProgram.methods.init(
-      PASSWORD,
+      // @ts-ignore
+      Buffer.from(keccak_256.digest(Buffer.from(PASSWORD)))
     )
       .accounts({
         authority: provider.publicKey,

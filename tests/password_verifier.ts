@@ -1,5 +1,6 @@
 import * as anchor from '@coral-xyz/anchor';
 import { Program, Provider } from '@project-serum/anchor';
+import { keccak_256 } from 'js-sha3';
 import { PasswordVerifier } from '../target/types/password_verifier';
 
 describe('password_verifier', () => {
@@ -13,8 +14,9 @@ describe('password_verifier', () => {
 
   it('Verify', async () => {
     console.log('Password init');
-    const tx = await program.methods.init(
-      PASSWORD,
+    const initTx = await program.methods.init(
+      // @ts-ignore
+      Buffer.from(keccak_256.digest(Buffer.from(PASSWORD)))
     )
       .accounts({
         authority: provider.publicKey,
@@ -24,9 +26,9 @@ describe('password_verifier', () => {
       })
       .signers([passwordVerifierState])
       .rpc({ skipPreflight: true });
-    console.log('Init signature', tx);
+    console.log('Init signature', initTx);
 
-    const tx2 = await program.methods.verify(
+    const verifyTx = await program.methods.verify(
       new anchor.BN(1_000_000),
       Buffer.from(PASSWORD),
     )
@@ -36,6 +38,6 @@ describe('password_verifier', () => {
         unusedRecipient: provider.publicKey,
       })
       .rpc();
-    console.log('Verifiaction signature', tx2);
+    console.log('Verification signature', verifyTx);
   });
 });
