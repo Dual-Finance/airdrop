@@ -23,6 +23,10 @@ jobs:
         run: solana config get
       - name: Install yarn dependencies
         run: yarn install
+      - name: Upgrade solana
+        run: sh -c "$(curl -sSfL https://release.solana.com/v1.14.2/install)"
+      - name: Set path
+        run: PATH="/github/home/.local/share/solana/install/active_release/bin:$PATH"
 
       - uses: nick-fields/retry@v2
         with:
