@@ -16,7 +16,7 @@ describe('password_verifier', () => {
     console.log('Password init');
     const initTx = await program.methods.init(
       // @ts-ignore
-      Buffer.from(keccak_256.digest(Buffer.from(PASSWORD)))
+      Buffer.from(keccak_256.digest(Buffer.from(PASSWORD))),
     )
       .accounts({
         authority: provider.publicKey,

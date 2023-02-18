@@ -147,7 +147,7 @@ describe('airdrop', () => {
     console.log('Password init');
     const passwordInitTx = await passwordVerifierProgram.methods.init(
       // @ts-ignore
-      Buffer.from(keccak_256.digest(Buffer.from(PASSWORD)))
+      Buffer.from(keccak_256.digest(Buffer.from(PASSWORD))),
     )
       .accounts({
         authority: provider.publicKey,
