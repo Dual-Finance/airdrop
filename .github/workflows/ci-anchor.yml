@@ -31,6 +31,8 @@ jobs:
         run: export PATH="/github/home/.local/share/solana/install/active_release/bin:$PATH"
       - name: Set path
         run: PATH="/github/home/.local/share/solana/install/active_release/bin:$PATH"
+      - name: Echo path
+        run: echo $PATH
       - name: Solana version
         run: solana --version
       - name: Run tests
