@@ -12,7 +12,7 @@ describe('merkle_verifier', () => {
   const program = anchor.workspace.MerkleVerifier as Program<MerkleVerifier>;
   const stateKeypair = anchor.web3.Keypair.generate();
 
-  it('Merkly Verify', async () => {
+  it('Merkle Verify', async () => {
     const kpOne = anchor.web3.Keypair.generate();
     const kpTwo = anchor.web3.Keypair.generate();
     const kpThree = anchor.web3.Keypair.generate();
