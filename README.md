@@ -35,3 +35,6 @@ projects will want to do an airdrop if they have a predetermined list of
 recipients and amounts.
 
 Modification of [merkle-distributor](https://github.com/saber-hq/merkle-distributor)
+
+# Design
+[Design doc](https://docs.google.com/document/d/1SYqRHrPhmiA2M0D2P7GGkqKktOQJX-3xw4BvMMr6Se8)
