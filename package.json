@@ -9,7 +9,7 @@
         "@project-serum/serum": "^0.13.65",
         "@solana/spl-token": "0.3.7",
         "@solana/web3.js": "^1.73.2",
-        "eslint": "^7.32.0 || ^8.2.0",
+        "eslint": "^8.35.0",
         "js-sha3": "^0.8.0"
     },
     "devDependencies": {
