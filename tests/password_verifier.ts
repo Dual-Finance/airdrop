@@ -3,28 +3,36 @@ import { Program, Provider } from '@project-serum/anchor';
 import { keccak_256 } from 'js-sha3';
 import { PasswordVerifier } from '../target/types/password_verifier';
 
+const crypto = require('crypto');
+
 describe('password_verifier', () => {
   // Configure the client to use the local cluster.
   anchor.setProvider(anchor.AnchorProvider.env());
 
   const provider: Provider = anchor.AnchorProvider.env();
   const program = anchor.workspace.PasswordVerifier as Program<PasswordVerifier>;
-  const passwordVerifierState = anchor.web3.Keypair.generate();
   const PASSWORD = 'PASSWORD';
+
+  const verifierSeed = crypto.randomBytes(32);
+  const [passwordVerifierState, _passwordVerifierBump] = (
+    anchor.web3.PublicKey.findProgramAddressSync(
+      [verifierSeed],
+      program.programId,
+    ));
 
   it('Verify', async () => {
     console.log('Password init');
     const initTx = await program.methods.init(
       // @ts-ignore
+      verifierSeed,
       Buffer.from(keccak_256.digest(Buffer.from(PASSWORD))),
     )
       .accounts({
         authority: provider.publicKey,
-        verificationState: passwordVerifierState.publicKey,
+        verificationState: passwordVerifierState,
         systemProgram: anchor.web3.SystemProgram.programId,
         rent: anchor.web3.SYSVAR_RENT_PUBKEY,
       })
-      .signers([passwordVerifierState])
       .rpc({ skipPreflight: true });
     console.log('Init signature', initTx);
 
@@ -34,7 +42,7 @@ describe('password_verifier', () => {
     )
       .accounts({
         authority: provider.publicKey,
-        verificationState: passwordVerifierState.publicKey,
+        verificationState: passwordVerifierState,
         unusedRecipient: provider.publicKey,
       })
       .rpc();

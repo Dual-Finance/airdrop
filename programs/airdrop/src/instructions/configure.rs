@@ -5,7 +5,7 @@ use crate::State;
 use crate::VAULT_SEED;
 
 #[derive(Accounts)]
-#[instruction(verifier_instruction_prefix: [u8; 8])]
+#[instruction(state_seed: [u8; 32], verifier_instruction_prefix: [u8; 8])]
 pub struct Configure<'info> {
     #[account(mut)]
     pub payer: Signer<'info>,
@@ -13,6 +13,8 @@ pub struct Configure<'info> {
     #[account(
         init,
         payer = payer,
+        seeds = [&state_seed],
+        bump,
         space = 8 + std::mem::size_of::<State>(),
     )]
     pub state: Account<'info, State>,
@@ -41,6 +43,7 @@ pub struct Configure<'info> {
 
 pub fn handle_configure(
     ctx: Context<Configure>,
+    state_seed: [u8; 32],
     verifier_instruction_prefix: [u8; 8],
 ) -> Result<()> {
     ctx.accounts.state.verifier_program = ctx.accounts.verifier_program.key();
@@ -49,6 +52,9 @@ pub fn handle_configure(
     ctx.accounts.state.vault = ctx.accounts.vault.key();
     ctx.accounts.state.vault_bump = *ctx.bumps.get("vault").unwrap();
     ctx.accounts.state.close_authority = ctx.accounts.payer.key();
+
+    ctx.accounts.state.state_seed = state_seed;
+    ctx.accounts.state.state_bump = *ctx.bumps.get("state").unwrap();
 
     Ok(())
 }

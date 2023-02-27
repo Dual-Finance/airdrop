@@ -16,7 +16,7 @@ pub mod merkle_verifier {
         handle_verify(ctx, amount, verification_data)
     }
 
-    pub fn init(ctx: Context<Init>, root: [u8; 32]) -> Result<()> {
-        handle_init(ctx, root)
+    pub fn init(ctx: Context<Init>, seed: [u8; 32], root: [u8; 32]) -> Result<()> {
+        handle_init(ctx, seed, root)
     }
 }
