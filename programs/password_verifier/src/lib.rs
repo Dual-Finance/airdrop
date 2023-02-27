@@ -7,7 +7,7 @@ declare_id!("EmsREpwoUtHnmg8aSCqmTFyfp71vnnFCdZozohcrZPeL");
 pub mod password_verifier {
     use super::*;
 
-    pub fn init(ctx: Context<Init>, password_hash: [u8; 32]) -> Result<()> {
+    pub fn init(ctx: Context<Init>, _seed: [u8; 32], password_hash: [u8; 32]) -> Result<()> {
         ctx.accounts.verification_state.password_hash = password_hash;
         Ok(())
     }
@@ -28,7 +28,7 @@ pub struct VerificationState {
 }
 
 #[derive(Accounts)]
-#[instruction(password_hash: [u8; 32])]
+#[instruction(seed: [u8; 32], password_hash: [u8; 32])]
 pub struct Init<'info> {
     #[account(mut)]
     pub authority: Signer<'info>,
@@ -36,6 +36,8 @@ pub struct Init<'info> {
     #[account(
         init,
         payer = authority,
+        seeds = [&seed],
+        bump,
         space = 8 + std::mem::size_of::<VerificationState>(),
     )]
     pub verification_state: Account<'info, VerificationState>,

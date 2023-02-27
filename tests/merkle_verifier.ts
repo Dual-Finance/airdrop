@@ -3,6 +3,7 @@ import { Program, Provider } from '@project-serum/anchor';
 import { MerkleVerifier } from '../target/types/merkle_verifier';
 import { BalanceTree } from './utils/balance_tree';
 import { createMint, createTokenAccount, toBytes32Array } from './utils/utils';
+const crypto = require('crypto');
 
 describe('merkle_verifier', () => {
   // Configure the client to use the local cluster.
@@ -10,7 +11,12 @@ describe('merkle_verifier', () => {
 
   const provider: Provider = anchor.AnchorProvider.env();
   const program = anchor.workspace.MerkleVerifier as Program<MerkleVerifier>;
-  const stateKeypair = anchor.web3.Keypair.generate();
+
+  const verifierSeed = crypto.randomBytes(32);
+  const [merkleVerifierState, _merkleVerifierBump] = anchor.web3.PublicKey.findProgramAddressSync(
+    [verifierSeed],
+    program.programId
+  );
 
   it('Merkle Verify', async () => {
     const kpOne = anchor.web3.Keypair.generate();
@@ -27,14 +33,14 @@ describe('merkle_verifier', () => {
     ]);
 
     const tx = await program.methods.init(
+      verifierSeed,
       toBytes32Array(tree.getRoot()),
     )
       .accounts({
         payer: provider.publicKey,
-        state: stateKeypair.publicKey,
+        state: merkleVerifierState,
         systemProgram: anchor.web3.SystemProgram.programId,
       })
-      .signers([stateKeypair])
       .rpc({ skipPreflight: true });
 
     console.log('Init signature', tx);
@@ -49,7 +55,7 @@ describe('merkle_verifier', () => {
     const [receipt, _receiptBump] = anchor.web3.PublicKey.findProgramAddressSync(
       [
         Buffer.from(anchor.utils.bytes.utf8.encode('Receipt')),
-        stateKeypair.publicKey.toBuffer(),
+        merkleVerifierState.toBuffer(),
         verificationData,
       ],
       program.programId,
@@ -69,7 +75,7 @@ describe('merkle_verifier', () => {
     )
       .accounts({
         authority: provider.publicKey,
-        verificationState: stateKeypair.publicKey,
+        verificationState: merkleVerifierState,
         recipient: recipientTokenAccount,
         receipt,
         systemProgram: anchor.web3.SystemProgram.programId,

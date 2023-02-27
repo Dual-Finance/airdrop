@@ -14,6 +14,7 @@ import { MerkleVerifier } from '../target/types/merkle_verifier';
 // @ts-ignore
 import * as governance_verifier_idl from './governance_verifier.json';
 import { BalanceTree } from './utils/balance_tree';
+const crypto = require('crypto');
 
 describe('airdrop', () => {
   anchor.setProvider(anchor.AnchorProvider.env());
@@ -23,14 +24,19 @@ describe('airdrop', () => {
   const merkleVerifierProgram = anchor.workspace.MerkleVerifier as Program<MerkleVerifier>;
   const governanceVerifierProgram = new Program(governance_verifier_idl as Idl, new PublicKey('ATCsJvzSbHaJj3a9uKTRHSoD8ZmWPfeC3sYxzcJJHTM5'), provider);
   const amount = new anchor.BN(1_000_000);
+  const verifierSeed = crypto.randomBytes(32);
   let mint: PublicKey;
 
-  const basicState = anchor.web3.Keypair.generate();
+  const basicSeed = crypto.randomBytes(32);
+  const [basicState, _stateBump] = anchor.web3.PublicKey.findProgramAddressSync(
+    [basicSeed],
+    program.programId,
+  );
   const basicVerifierState = anchor.web3.Keypair.generate();
   const [basicVault, _bump] = anchor.web3.PublicKey.findProgramAddressSync(
     [
       Buffer.from(anchor.utils.bytes.utf8.encode('Vault')),
-      basicState.publicKey.toBuffer(),
+      basicState.toBuffer(),
     ],
     program.programId,
   );
@@ -44,11 +50,12 @@ describe('airdrop', () => {
 
     console.log('Basic configure');
     const basicConfigureTx = await program.methods.configure(
+      basicSeed,
       basicVerifierInstruction,
     )
       .accounts({
         payer: provider.publicKey,
-        state: basicState.publicKey,
+        state: basicState,
         verifierProgram: basicVerifier,
         vault: basicVault,
         mint,
@@ -57,7 +64,6 @@ describe('airdrop', () => {
         systemProgram: anchor.web3.SystemProgram.programId,
         rent: anchor.web3.SYSVAR_RENT_PUBKEY,
       })
-      .signers([basicState])
       .rpc({ skipPreflight: true });
 
     console.log('Config signature', basicConfigureTx);
@@ -76,7 +82,7 @@ describe('airdrop', () => {
     )
       .accounts({
         authority: provider.publicKey,
-        state: basicState.publicKey,
+        state: basicState,
         vault: basicVault,
         recipient,
         verifierProgram: basicVerifier,
@@ -97,7 +103,7 @@ describe('airdrop', () => {
     const tx = await program.methods.close()
       .accounts({
         authority: provider.publicKey,
-        state: basicState.publicKey,
+        state: basicState,
         vault: basicVault,
         recipient,
         tokenProgram: TOKEN_PROGRAM_ID,
@@ -107,17 +113,24 @@ describe('airdrop', () => {
     console.log('Close signature', tx);
   });
 
-  const passwordState = anchor.web3.Keypair.generate();
-  const passwordVerifierState = anchor.web3.Keypair.generate();
-  const [passwordVault, _passwordBump] = anchor.web3.PublicKey.findProgramAddressSync(
+  const passwordVerifier = new PublicKey('EmsREpwoUtHnmg8aSCqmTFyfp71vnnFCdZozohcrZPeL');
+  const passwordSeed = crypto.randomBytes(32);
+  const [passwordState, _passwordBump] = anchor.web3.PublicKey.findProgramAddressSync(
+    [passwordSeed],
+    program.programId,
+  );
+  const [passwordVerifierState, _passwordVerifierBump] = anchor.web3.PublicKey.findProgramAddressSync(
+    [verifierSeed],
+    passwordVerifier
+  );
+  const [passwordVault, _passwordVaultBump] = anchor.web3.PublicKey.findProgramAddressSync(
     [
       Buffer.from(anchor.utils.bytes.utf8.encode('Vault')),
-      passwordState.publicKey.toBuffer(),
+      passwordState.toBuffer(),
     ],
     program.programId,
   );
 
-  const passwordVerifier = new PublicKey('EmsREpwoUtHnmg8aSCqmTFyfp71vnnFCdZozohcrZPeL');
   const passwordVerifierInstruction = [133, 161, 141, 48, 120, 198, 88, 150];
   const PASSWORD = 'PASSWORD';
 
@@ -126,20 +139,20 @@ describe('airdrop', () => {
 
     console.log('Password configure');
     const passwordConfigureTx = await program.methods.configure(
+      passwordSeed,
       passwordVerifierInstruction,
     )
       .accounts({
         payer: provider.publicKey,
-        state: passwordState.publicKey,
+        state: passwordState,
         verifierProgram: passwordVerifier,
         vault: passwordVault,
         mint,
-        verifierState: passwordVerifierState.publicKey,
+        verifierState: passwordVerifierState,
         tokenProgram: TOKEN_PROGRAM_ID,
         systemProgram: anchor.web3.SystemProgram.programId,
         rent: anchor.web3.SYSVAR_RENT_PUBKEY,
       })
-      .signers([passwordState])
       .rpc({ skipPreflight: true });
 
     console.log('Config signature', passwordConfigureTx);
@@ -147,15 +160,15 @@ describe('airdrop', () => {
     console.log('Password init');
     const passwordInitTx = await passwordVerifierProgram.methods.init(
       // @ts-ignore
+      verifierSeed,
       Buffer.from(keccak_256.digest(Buffer.from(PASSWORD))),
     )
       .accounts({
         authority: provider.publicKey,
-        verificationState: passwordVerifierState.publicKey,
+        verificationState: passwordVerifierState,
         systemProgram: anchor.web3.SystemProgram.programId,
         rent: anchor.web3.SYSVAR_RENT_PUBKEY,
       })
-      .signers([passwordVerifierState])
       .rpc({ skipPreflight: true });
 
     console.log('Password init', passwordInitTx);
@@ -174,11 +187,11 @@ describe('airdrop', () => {
     )
       .accounts({
         authority: provider.publicKey,
-        state: passwordState.publicKey,
+        state: passwordState,
         vault: passwordVault,
         recipient,
         verifierProgram: passwordVerifier,
-        verifierState: passwordVerifierState.publicKey,
+        verifierState: passwordVerifierState,
         tokenProgram: TOKEN_PROGRAM_ID,
       })
       .rpc({ skipPreflight: true });
@@ -188,13 +201,20 @@ describe('airdrop', () => {
 
   const merkleVerifier = new PublicKey('4ibGmfZ6WU9qDc231sTRsTTHoDjQ1L6wxkrEAiEvKfLm');
   const merkleVerifierInstruction = [133, 161, 141, 48, 120, 198, 88, 150];
-  const merkleVerifierStateKeypair = anchor.web3.Keypair.generate();
+  const [merkleVerifierState, _verifierStateBump] = anchor.web3.PublicKey.findProgramAddressSync(
+    [verifierSeed],
+    merkleVerifier,
+  );
 
-  const merkleState = anchor.web3.Keypair.generate();
-  const [merkleVault, _merkleBump] = anchor.web3.PublicKey.findProgramAddressSync(
+  const merkleSeed = crypto.randomBytes(32);
+  const [merkleState, _merkleStateBump] = anchor.web3.PublicKey.findProgramAddressSync(
+    [merkleSeed],
+    program.programId,
+  );
+  const [merkleVault, _merkleVaultBump] = anchor.web3.PublicKey.findProgramAddressSync(
     [
       Buffer.from(anchor.utils.bytes.utf8.encode('Vault')),
-      merkleState.publicKey.toBuffer(),
+      merkleState.toBuffer(),
     ],
     program.programId,
   );
@@ -214,32 +234,32 @@ describe('airdrop', () => {
   it('MerkleConfigure', async () => {
     console.log('Merkle configure');
     const merkleInitTx = await merkleVerifierProgram.methods.init(
+      verifierSeed,
       toBytes32Array(tree.getRoot()),
     )
       .accounts({
         payer: provider.publicKey,
-        state: merkleVerifierStateKeypair.publicKey,
+        state: merkleVerifierState,
         systemProgram: anchor.web3.SystemProgram.programId,
       })
-      .signers([merkleVerifierStateKeypair])
       .rpc({ skipPreflight: true });
     console.log('Merkle init', merkleInitTx);
 
     const merkleConfigureTx = await program.methods.configure(
+      merkleSeed,
       merkleVerifierInstruction,
     )
       .accounts({
         payer: provider.publicKey,
-        state: merkleState.publicKey,
+        state: merkleState,
         verifierProgram: merkleVerifier,
         vault: merkleVault,
         mint,
-        verifierState: merkleVerifierStateKeypair.publicKey,
+        verifierState: merkleVerifierState,
         tokenProgram: TOKEN_PROGRAM_ID,
         systemProgram: anchor.web3.SystemProgram.programId,
         rent: anchor.web3.SYSVAR_RENT_PUBKEY,
       })
-      .signers([merkleState])
       .rpc({ skipPreflight: true });
 
     console.log('Merkle config signature', merkleConfigureTx);
@@ -265,7 +285,7 @@ describe('airdrop', () => {
     const [receipt, _receiptBump] = anchor.web3.PublicKey.findProgramAddressSync(
       [
         Buffer.from(anchor.utils.bytes.utf8.encode('Receipt')),
-        merkleVerifierStateKeypair.publicKey.toBuffer(),
+        merkleVerifierState.toBuffer(),
         verificationData,
       ],
       merkleVerifierProgram.programId,
@@ -282,11 +302,11 @@ describe('airdrop', () => {
     )
       .accounts({
         authority: provider.publicKey,
-        state: merkleState.publicKey,
+        state: merkleState,
         vault: merkleVault,
         recipient,
         verifierProgram: merkleVerifier,
-        verifierState: merkleVerifierStateKeypair.publicKey,
+        verifierState: merkleVerifierState,
         tokenProgram: TOKEN_PROGRAM_ID,
       })
       .remainingAccounts([
@@ -321,7 +341,7 @@ describe('airdrop', () => {
     const [receipt, _receiptBump] = anchor.web3.PublicKey.findProgramAddressSync(
       [
         Buffer.from(anchor.utils.bytes.utf8.encode('Receipt')),
-        merkleVerifierStateKeypair.publicKey.toBuffer(),
+        merkleVerifierState.toBuffer(),
         verificationData,
       ],
       merkleVerifierProgram.programId,
@@ -338,11 +358,11 @@ describe('airdrop', () => {
     )
       .accounts({
         authority: provider.publicKey,
-        state: merkleState.publicKey,
+        state: merkleState,
         vault: merkleVault,
         recipient,
         verifierProgram: merkleVerifier,
-        verifierState: merkleVerifierStateKeypair.publicKey,
+        verifierState: merkleVerifierState,
         tokenProgram: TOKEN_PROGRAM_ID,
       })
       .remainingAccounts([
@@ -377,7 +397,7 @@ describe('airdrop', () => {
     const [receipt, _receiptBump] = anchor.web3.PublicKey.findProgramAddressSync(
       [
         Buffer.from(anchor.utils.bytes.utf8.encode('Receipt')),
-        merkleVerifierStateKeypair.publicKey.toBuffer(),
+        merkleVerifierState.toBuffer(),
         verificationData,
       ],
       merkleVerifierProgram.programId,
@@ -395,11 +415,11 @@ describe('airdrop', () => {
       )
         .accounts({
           authority: provider.publicKey,
-          state: merkleState.publicKey,
+          state: merkleState,
           vault: merkleVault,
           recipient,
           verifierProgram: merkleVerifier,
-          verifierState: merkleVerifierStateKeypair.publicKey,
+          verifierState: merkleVerifierState,
           tokenProgram: TOKEN_PROGRAM_ID,
         })
         .remainingAccounts([
@@ -438,7 +458,7 @@ describe('airdrop', () => {
     const [receipt, _receiptBump] = anchor.web3.PublicKey.findProgramAddressSync(
       [
         Buffer.from(anchor.utils.bytes.utf8.encode('Receipt')),
-        merkleVerifierStateKeypair.publicKey.toBuffer(),
+        merkleVerifierState.toBuffer(),
         verificationData,
       ],
       merkleVerifierProgram.programId,
@@ -456,11 +476,11 @@ describe('airdrop', () => {
       )
         .accounts({
           authority: provider.publicKey,
-          state: merkleState.publicKey,
+          state: merkleState,
           vault: merkleVault,
           recipient,
           verifierProgram: merkleVerifier,
-          verifierState: merkleVerifierStateKeypair.publicKey,
+          verifierState: merkleVerifierState,
           tokenProgram: TOKEN_PROGRAM_ID,
         })
         .remainingAccounts([
@@ -489,8 +509,12 @@ describe('airdrop', () => {
     const eligibilityStart = new anchor.BN(0);
     const eligibilityEnd = new anchor.BN(2_000_000_000);
 
-    const stateKeypair = anchor.web3.Keypair.generate();
-    const governanceStateKeypair = anchor.web3.Keypair.generate();
+    const governanceSeed = crypto.randomBytes(32);
+    const [governanceState, _governanceStateBump] = anchor.web3.PublicKey.findProgramAddressSync(
+      [governanceSeed],
+      program.programId,
+    );
+    const governanceVerifierKeypair = anchor.web3.Keypair.generate();
     const proposal = new PublicKey(
       '6ws4bv5CefMwVXi54fMc6c7VU1RrT3QxYYeGzQMiVp4Z',
     );
@@ -506,7 +530,7 @@ describe('airdrop', () => {
     const [governanceVault, _governanceBump] = anchor.web3.PublicKey.findProgramAddressSync(
       [
         Buffer.from(anchor.utils.bytes.utf8.encode('Vault')),
-        stateKeypair.publicKey.toBuffer(),
+        governanceState.toBuffer(),
       ],
       program.programId,
     );
@@ -516,30 +540,30 @@ describe('airdrop', () => {
       .configure(amount, eligibilityStart, eligibilityEnd)
       .accounts({
         payer: provider.publicKey,
-        state: governanceStateKeypair.publicKey,
+        state: governanceVerifierKeypair.publicKey,
         governance,
         systemProgram: anchor.web3.SystemProgram.programId,
       })
-      .signers([governanceStateKeypair])
+      .signers([governanceVerifierKeypair])
       .rpc({ skipPreflight: true });
 
     console.log('Configure signature', configureTx);
 
     const governanceConfigureTx = await program.methods.configure(
+      governanceSeed,
       governanceVerifierInstruction,
     )
       .accounts({
         payer: provider.publicKey,
-        state: stateKeypair.publicKey,
+        state: governanceState,
         verifierProgram: governanceVerifier,
         vault: governanceVault,
         mint,
-        verifierState: governanceStateKeypair.publicKey,
+        verifierState: governanceVerifierKeypair.publicKey,
         tokenProgram: TOKEN_PROGRAM_ID,
         systemProgram: anchor.web3.SystemProgram.programId,
         rent: anchor.web3.SYSVAR_RENT_PUBKEY,
       })
-      .signers([stateKeypair])
       .rpc({ skipPreflight: true });
 
     console.log('Governance config signature', governanceConfigureTx);
@@ -551,7 +575,7 @@ describe('airdrop', () => {
       const [receipt, _receiptBump] = anchor.web3.PublicKey.findProgramAddressSync(
         [
           Buffer.from(anchor.utils.bytes.utf8.encode('Receipt')),
-          governanceStateKeypair.publicKey.toBuffer(),
+          governanceVerifierKeypair.publicKey.toBuffer(),
           voteRecord.toBuffer(),
         ],
         governanceVerifierProgram.programId,
@@ -562,11 +586,11 @@ describe('airdrop', () => {
       )
         .accounts({
           authority: provider.publicKey,
-          state: stateKeypair.publicKey,
+          state: governanceState,
           vault: governanceVault,
           recipient,
           verifierProgram: governanceVerifier,
-          verifierState: governanceStateKeypair.publicKey,
+          verifierState: governanceVerifierKeypair.publicKey,
           tokenProgram: TOKEN_PROGRAM_ID,
         })
         .remainingAccounts([

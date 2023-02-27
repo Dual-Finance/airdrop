@@ -15,6 +15,14 @@ pub struct State {
     pub vault: Pubkey,
     pub vault_bump: u8,
 
+    /// Seed and bump for this account. Should not be needed, but saved for
+    /// future use.
+    pub state_seed: [u8; 32],
+    pub state_bump: u8,
+
     /// Required signer when closing.
     pub close_authority: Pubkey,
+
+    /// Reserved for any future upgrades.
+    pub unused_padding: [u8; 64],
 }
