@@ -14,6 +14,7 @@ import { MerkleVerifier } from '../target/types/merkle_verifier';
 // @ts-ignore
 import * as governance_verifier_idl from './governance_verifier.json';
 import { BalanceTree } from './utils/balance_tree';
+
 const crypto = require('crypto');
 
 describe('airdrop', () => {
@@ -119,10 +120,11 @@ describe('airdrop', () => {
     [passwordSeed],
     program.programId,
   );
-  const [passwordVerifierState, _passwordVerifierBump] = anchor.web3.PublicKey.findProgramAddressSync(
-    [verifierSeed],
-    passwordVerifier
-  );
+  const [passwordVerifierState, _passwordVerifierBump] = (
+    anchor.web3.PublicKey.findProgramAddressSync(
+      [verifierSeed],
+      passwordVerifier,
+    ));
   const [passwordVault, _passwordVaultBump] = anchor.web3.PublicKey.findProgramAddressSync(
     [
       Buffer.from(anchor.utils.bytes.utf8.encode('Vault')),

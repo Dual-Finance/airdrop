@@ -2,6 +2,7 @@ import * as anchor from '@coral-xyz/anchor';
 import { Program, Provider } from '@project-serum/anchor';
 import { keccak_256 } from 'js-sha3';
 import { PasswordVerifier } from '../target/types/password_verifier';
+
 const crypto = require('crypto');
 
 describe('password_verifier', () => {
@@ -13,10 +14,11 @@ describe('password_verifier', () => {
   const PASSWORD = 'PASSWORD';
 
   const verifierSeed = crypto.randomBytes(32);
-  const [passwordVerifierState, _passwordVerifierBump] = anchor.web3.PublicKey.findProgramAddressSync(
-    [verifierSeed],
-    program.programId
-  );
+  const [passwordVerifierState, _passwordVerifierBump] = (
+    anchor.web3.PublicKey.findProgramAddressSync(
+      [verifierSeed],
+      program.programId,
+    ));
 
   it('Verify', async () => {
     console.log('Password init');

@@ -3,6 +3,7 @@ import { Program, Provider } from '@project-serum/anchor';
 import { MerkleVerifier } from '../target/types/merkle_verifier';
 import { BalanceTree } from './utils/balance_tree';
 import { createMint, createTokenAccount, toBytes32Array } from './utils/utils';
+
 const crypto = require('crypto');
 
 describe('merkle_verifier', () => {
@@ -15,7 +16,7 @@ describe('merkle_verifier', () => {
   const verifierSeed = crypto.randomBytes(32);
   const [merkleVerifierState, _merkleVerifierBump] = anchor.web3.PublicKey.findProgramAddressSync(
     [verifierSeed],
-    program.programId
+    program.programId,
   );
 
   it('Merkle Verify', async () => {
