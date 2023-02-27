@@ -516,10 +516,11 @@ describe('airdrop', () => {
       [governanceSeed],
       program.programId,
     );
-    const [governanceVerifierState, _governanceVerifierStateBump] = anchor.web3.PublicKey.findProgramAddressSync(
-      [verifierSeed],
-      governanceVerifier,
-    );
+    const [governanceVerifierState, _governanceVerifierStateBump] = (
+      anchor.web3.PublicKey.findProgramAddressSync(
+        [verifierSeed],
+        governanceVerifier,
+      ));
     const proposal = new PublicKey(
       '6ws4bv5CefMwVXi54fMc6c7VU1RrT3QxYYeGzQMiVp4Z',
     );
