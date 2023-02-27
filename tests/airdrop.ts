@@ -516,7 +516,10 @@ describe('airdrop', () => {
       [governanceSeed],
       program.programId,
     );
-    const governanceVerifierKeypair = anchor.web3.Keypair.generate();
+    const [governanceVerifierState, _governanceVerifierStateBump] = anchor.web3.PublicKey.findProgramAddressSync(
+      [verifierSeed],
+      governanceVerifier,
+    );
     const proposal = new PublicKey(
       '6ws4bv5CefMwVXi54fMc6c7VU1RrT3QxYYeGzQMiVp4Z',
     );
@@ -539,14 +542,13 @@ describe('airdrop', () => {
 
     console.log('Configuring');
     const configureTx = await governanceVerifierProgram.methods
-      .configure(amount, eligibilityStart, eligibilityEnd)
+      .configure(verifierSeed, amount, eligibilityStart, eligibilityEnd)
       .accounts({
         payer: provider.publicKey,
-        state: governanceVerifierKeypair.publicKey,
+        state: governanceVerifierState,
         governance,
         systemProgram: anchor.web3.SystemProgram.programId,
       })
-      .signers([governanceVerifierKeypair])
       .rpc({ skipPreflight: true });
 
     console.log('Configure signature', configureTx);
@@ -561,7 +563,7 @@ describe('airdrop', () => {
         verifierProgram: governanceVerifier,
         vault: governanceVault,
         mint,
-        verifierState: governanceVerifierKeypair.publicKey,
+        verifierState: governanceVerifierState,
         tokenProgram: TOKEN_PROGRAM_ID,
         systemProgram: anchor.web3.SystemProgram.programId,
         rent: anchor.web3.SYSVAR_RENT_PUBKEY,
@@ -577,7 +579,7 @@ describe('airdrop', () => {
       const [receipt, _receiptBump] = anchor.web3.PublicKey.findProgramAddressSync(
         [
           Buffer.from(anchor.utils.bytes.utf8.encode('Receipt')),
-          governanceVerifierKeypair.publicKey.toBuffer(),
+          governanceVerifierState.toBuffer(),
           voteRecord.toBuffer(),
         ],
         governanceVerifierProgram.programId,
@@ -592,7 +594,7 @@ describe('airdrop', () => {
           vault: governanceVault,
           recipient,
           verifierProgram: governanceVerifier,
-          verifierState: governanceVerifierKeypair.publicKey,
+          verifierState: governanceVerifierState,
           tokenProgram: TOKEN_PROGRAM_ID,
         })
         .remainingAccounts([
