@@ -2,8 +2,11 @@ use anchor_lang::prelude::*;
 
 #[account]
 pub struct State {
-    /// Verifier calls into this program with a CPI.
-    pub verifier_signature: Pubkey,
+    /// Fields were used in a previous version. Eventually will remove on next
+    /// major release.
+    pub unused_verifier_program: Pubkey,
+    pub unused_verifier_state: Pubkey,
+    pub unused_verifier_instruction_prefix: [u8; 8],
 
     /// Tokens to be airdropped and the bump for the token account.
     pub vault: Pubkey,
@@ -17,6 +20,9 @@ pub struct State {
     /// Required signer when closing.
     pub close_authority: Pubkey,
 
+    /// Verifier calls into this program with a CPI.
+    pub verifier_signature: Pubkey,
+
     /// Reserved for any future upgrades.
-    pub unused_padding: [u8; 64],
+    pub unused_padding: [u8; 32],
 }
