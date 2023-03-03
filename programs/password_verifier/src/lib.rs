@@ -55,7 +55,7 @@ pub struct VerifierState {
 }
 
 #[derive(Accounts)]
-#[instruction(seed: [u8; 32], password: Vec<u8>)]
+#[instruction(seed: [u8; 32], password_hash: [u8; 32])]
 pub struct Init<'info> {
     #[account(mut)]
     pub authority: Signer<'info>,
@@ -78,7 +78,7 @@ pub struct Init<'info> {
 }
 
 #[derive(Accounts)]
-#[instruction(amount: u64, verifier_data: Vec<u8>)]
+#[instruction(amount: u64, password: Vec<u8>)]
 pub struct Claim<'info> {
     pub authority: Signer<'info>,
 

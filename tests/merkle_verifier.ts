@@ -115,7 +115,7 @@ describe('merkle_verifier', () => {
     )
       .accounts({
         authority: provider.publicKey,
-        verificationState: merkleVerifierState,
+        verifierState: merkleVerifierState,
         cpiAuthority: verifierSignature,
         airdropState: merkleState,
         vault: merkleVault,
@@ -224,7 +224,7 @@ describe('merkle_verifier', () => {
     )
       .accounts({
         authority: provider.publicKey,
-        verificationState: merkleVerifierState,
+        verifierState: merkleVerifierState,
         cpiAuthority: verifierSignature,
         airdropState: merkleState,
         vault: merkleVault,
@@ -242,7 +242,7 @@ describe('merkle_verifier', () => {
       )
         .accounts({
           authority: provider.publicKey,
-          verificationState: merkleVerifierState,
+          verifierState: merkleVerifierState,
           cpiAuthority: verifierSignature,
           airdropState: merkleState,
           vault: merkleVault,
@@ -356,7 +356,7 @@ describe('merkle_verifier', () => {
       )
         .accounts({
           authority: provider.publicKey,
-          verificationState: merkleVerifierState,
+          verifierState: merkleVerifierState,
           cpiAuthority: verifierSignature,
           airdropState: merkleState,
           vault: merkleVault,

@@ -35,7 +35,7 @@ pub fn handle_claim(ctx: Context<Claim>, amount: u64, verification_data: Vec<u8>
     }
 
     // This is the actual verification.
-    verify_proof(proof, ctx.accounts.verification_state.root, leaf);
+    verify_proof(proof, ctx.accounts.verifier_state.root, leaf);
 
     // Fill in the receipt. Just the presence of this object makes another
     // attempt at verify fail.
@@ -78,11 +78,11 @@ pub struct Claim<'info> {
     pub authority: Signer<'info>,
 
     /// Used to get the root for validation.
-    pub verification_state: Account<'info, VerifierState>,
+    pub verifier_state: Account<'info, VerifierState>,
 
     #[account(
         init,
-        seeds = ["Receipt".as_ref(), verification_state.key().as_ref(), &verification_data[0..8]],
+        seeds = ["Receipt".as_ref(), verifier_state.key().as_ref(), &verification_data[0..8]],
         bump,
         space = 8 + std::mem::size_of::<Receipt>(),
         payer = authority
@@ -92,7 +92,7 @@ pub struct Claim<'info> {
     #[account(seeds = [&airdrop_state.key().to_bytes()], bump)]
     /// CHECK: Checked in the CPI
     pub cpi_authority: UncheckedAccount<'info>,
-    #[account(constraint = airdrop_state.key.as_ref() == verification_state.airdrop_state.as_ref())]
+    #[account(constraint = airdrop_state.key.as_ref() == verifier_state.airdrop_state.as_ref())]
     /// CHECK: Checked in the CPI
     pub airdrop_state: UncheckedAccount<'info>,
     #[account(mut)]
