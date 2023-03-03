@@ -16,17 +16,11 @@ declare_id!("tXmC2ARKqzPoX6wQAVmDj25XAQUN6JQe8iz19QR5Lo3");
 pub mod airdrop {
     use super::*;
 
-    pub fn configure(
-        ctx: Context<Configure>,
-        state_seed: [u8; 32],
-    ) -> Result<()> {
+    pub fn configure(ctx: Context<Configure>, state_seed: [u8; 32]) -> Result<()> {
         handle_configure(ctx, state_seed)
     }
 
-    pub fn claim<'info>(
-        ctx: Context<'_, '_, '_, 'info, Claim<'info>>,
-        amount: u64,
-    ) -> Result<()> {
+    pub fn claim<'info>(ctx: Context<'_, '_, '_, 'info, Claim<'info>>, amount: u64) -> Result<()> {
         handle_claim(ctx, amount)
     }
 

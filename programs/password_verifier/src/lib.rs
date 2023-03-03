@@ -1,7 +1,7 @@
+use airdrop::program::Airdrop as AirdropProgram;
 use anchor_lang::prelude::*;
 use anchor_lang::solana_program::keccak::*;
 use anchor_spl::token::{Token, TokenAccount};
-use airdrop::program::Airdrop as AirdropProgram;
 
 declare_id!("EmsREpwoUtHnmg8aSCqmTFyfp71vnnFCdZozohcrZPeL");
 
@@ -31,7 +31,7 @@ pub mod password_verifier {
             token_program: ctx.accounts.token_program.to_account_info(),
         };
         let cpi_program = ctx.accounts.airdrop_program.to_account_info();
-    
+
         airdrop::cpi::claim(
             CpiContext::new_with_signer(
                 cpi_program,

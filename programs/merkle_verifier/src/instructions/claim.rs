@@ -1,12 +1,12 @@
 use crate::*;
-use anchor_spl::token::{Token, TokenAccount};
 use airdrop::program::Airdrop as AirdropProgram;
+use anchor_spl::token::{Token, TokenAccount};
 
 pub fn handle_claim(ctx: Context<Claim>, amount: u64, verification_data: Vec<u8>) -> Result<()> {
     // Do the verification
     let index_array: [u8; 8] = verification_data[0..8]
-    .try_into()
-    .expect("Invalid verification data");
+        .try_into()
+        .expect("Invalid verification data");
     let index: u64 = u64::from_le_bytes(index_array);
 
     msg!("Verification Data {:02X?}", verification_data);

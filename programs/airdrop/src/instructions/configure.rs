@@ -39,10 +39,7 @@ pub struct Configure<'info> {
     pub rent: Sysvar<'info, Rent>,
 }
 
-pub fn handle_configure(
-    ctx: Context<Configure>,
-    state_seed: [u8; 32],
-) -> Result<()> {
+pub fn handle_configure(ctx: Context<Configure>, state_seed: [u8; 32]) -> Result<()> {
     ctx.accounts.state.verifier_signature = ctx.accounts.verifier_signature.key();
 
     ctx.accounts.state.vault = ctx.accounts.vault.key();

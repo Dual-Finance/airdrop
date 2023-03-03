@@ -1,6 +1,6 @@
+use airdrop::program::Airdrop as AirdropProgram;
 use anchor_lang::prelude::*;
 use anchor_spl::token::{Token, TokenAccount};
-use airdrop::program::Airdrop as AirdropProgram;
 
 declare_id!("FEdxZUg4BtWvMy7gy7pXEoj1isqBRYmbYdpyZfq5QZYr");
 
@@ -20,7 +20,7 @@ pub mod basic_verifier {
             token_program: ctx.accounts.token_program.to_account_info(),
         };
         let cpi_program = ctx.accounts.airdrop_program.to_account_info();
-    
+
         airdrop::cpi::claim(
             CpiContext::new_with_signer(
                 cpi_program,
