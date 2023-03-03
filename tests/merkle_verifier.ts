@@ -5,7 +5,9 @@ import { PublicKey } from '@solana/web3.js';
 import { Airdrop } from '../target/types/airdrop';
 import { MerkleVerifier } from '../target/types/merkle_verifier';
 import { BalanceTree } from './utils/balance_tree';
-import { createMint, createTokenAccount, mintToAccount, toBeBytes, toBytes32Array } from './utils/utils';
+import {
+  createMint, createTokenAccount, mintToAccount, toBeBytes, toBytes32Array,
+} from './utils/utils';
 
 const crypto = require('crypto');
 

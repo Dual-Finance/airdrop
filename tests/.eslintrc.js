@@ -29,6 +29,7 @@ module.exports = {
     'import/prefer-default-export': 0,
     'class-methods-use-this': 0,
     'no-unused-vars': 'off',
+    'no-bitwise': 'off',
     '@typescript-eslint/no-unused-vars': [
       'error',
       { 
