@@ -70,7 +70,7 @@ describe('password_verifier', () => {
     )
       .accounts({
         authority: provider.publicKey,
-        verificationState: passwordVerifierState,
+        verifierState: passwordVerifierState,
         airdropState: passwordState,
         systemProgram: anchor.web3.SystemProgram.programId,
         rent: anchor.web3.SYSVAR_RENT_PUBKEY,
@@ -84,7 +84,7 @@ describe('password_verifier', () => {
     )
       .accounts({
         authority: provider.publicKey,
-        verificationState: passwordVerifierState,
+        verifierState: passwordVerifierState,
         cpiAuthority: verifierSignature,
         airdropState: passwordState,
         vault: passwordVault,

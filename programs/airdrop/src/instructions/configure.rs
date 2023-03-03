@@ -48,6 +48,6 @@ pub fn handle_configure(ctx: Context<Configure>, state_seed: [u8; 32]) -> Result
 
     ctx.accounts.state.state_seed = state_seed;
     ctx.accounts.state.state_bump = *ctx.bumps.get("state").unwrap();
-
+    
     Ok(())
 }

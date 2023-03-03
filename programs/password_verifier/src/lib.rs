@@ -10,17 +10,16 @@ pub mod password_verifier {
     use super::*;
 
     pub fn init(ctx: Context<Init>, _seed: [u8; 32], password_hash: [u8; 32]) -> Result<()> {
-        ctx.accounts.verification_state.password_hash = password_hash;
-        ctx.accounts.verification_state.airdrop_state = ctx.accounts.airdrop_state.key();
+        ctx.accounts.verifier_state.password_hash = password_hash;
+        ctx.accounts.verifier_state.airdrop_state = ctx.accounts.airdrop_state.key();
         Ok(())
     }
 
     pub fn claim(ctx: Context<Claim>, amount: u64, password: Vec<u8>) -> Result<()> {
-        // Do verification.
-        let verification_data_slice: &[u8] = password.as_slice();
+        let verifier_data_slice: &[u8] = password.as_slice();
         assert_eq!(
-            hashv(&[verification_data_slice]).as_ref(),
-            ctx.accounts.verification_state.password_hash,
+            hashv(&[verifier_data_slice]).as_ref(),
+            ctx.accounts.verifier_state.password_hash,
         );
 
         // Call the CPI to claim
@@ -50,13 +49,13 @@ pub mod password_verifier {
 }
 
 #[account]
-pub struct VerificationState {
+pub struct VerifierState {
     pub password_hash: [u8; 32],
     pub airdrop_state: Pubkey,
 }
 
 #[derive(Accounts)]
-#[instruction(seed: [u8; 32], password_hash: [u8; 32])]
+#[instruction(seed: [u8; 32], password: Vec<u8>)]
 pub struct Init<'info> {
     #[account(mut)]
     pub authority: Signer<'info>,
@@ -66,12 +65,12 @@ pub struct Init<'info> {
         payer = authority,
         seeds = [&seed],
         bump,
-        space = 8 + std::mem::size_of::<VerificationState>(),
+        space = 8 + std::mem::size_of::<VerifierState>(),
     )]
-    pub verification_state: Account<'info, VerificationState>,
+    pub verifier_state: Account<'info, VerifierState>,
 
     /// CHECK: Only saved for making sure the claim matches the correct
-    /// verification state.
+    /// verifier state.
     pub airdrop_state: AccountInfo<'info>,
 
     pub system_program: Program<'info, System>,
@@ -79,17 +78,17 @@ pub struct Init<'info> {
 }
 
 #[derive(Accounts)]
-#[instruction(amount: u64, verification_data: Vec<u8>)]
+#[instruction(amount: u64, verifier_data: Vec<u8>)]
 pub struct Claim<'info> {
     pub authority: Signer<'info>,
 
-    pub verification_state: Account<'info, VerificationState>,
+    pub verifier_state: Account<'info, VerifierState>,
 
     #[account(seeds = [&airdrop_state.key().to_bytes()], bump)]
     /// CHECK: Checked in the CPI
     pub cpi_authority: UncheckedAccount<'info>,
 
-    #[account(constraint = airdrop_state.key.as_ref() == verification_state.airdrop_state.as_ref())]
+    #[account(constraint = airdrop_state.key.as_ref() == verifier_state.airdrop_state.as_ref())]
     /// CHECK: Checked in the CPI
     pub airdrop_state: UncheckedAccount<'info>,
     #[account(mut)]
