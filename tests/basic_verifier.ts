@@ -1,25 +1,72 @@
 import * as anchor from '@coral-xyz/anchor';
 import { Program, Provider } from '@project-serum/anchor';
+import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
+import { PublicKey } from '@solana/web3.js';
+import { Airdrop } from '../target/types/airdrop';
 import { BasicVerifier } from '../target/types/basic_verifier';
+import { createMint, createTokenAccount, mintToAccount } from './utils/utils';
+const crypto = require('crypto');
 
 describe('basic_verifier', () => {
   // Configure the client to use the local cluster.
   anchor.setProvider(anchor.AnchorProvider.env());
 
   const provider: Provider = anchor.AnchorProvider.env();
-  const program = anchor.workspace.BasicVerifier as Program<BasicVerifier>;
+
+  const airdropProgram = anchor.workspace.Airdrop as Program<Airdrop>;
+  const verifierProgram = anchor.workspace.BasicVerifier as Program<BasicVerifier>;
+  let mint: PublicKey;
 
   it('Verify', async () => {
-    const tx = await program.methods.verify(
-      new anchor.BN(1_000_000),
-      Buffer.from('Optional payload data'),
+    const airdropAmount = new anchor.BN(1_000_000);
+    mint = await createMint(provider, provider.publicKey);
+
+    const basicSeed = crypto.randomBytes(32);
+    const [basicState, _stateBump] = anchor.web3.PublicKey.findProgramAddressSync(
+      [basicSeed],
+      airdropProgram.programId,
+    );
+    const [basicVault, _bump] = anchor.web3.PublicKey.findProgramAddressSync(
+      [
+        Buffer.from(anchor.utils.bytes.utf8.encode('Vault')),
+        basicState.toBuffer(),
+      ],
+      airdropProgram.programId,
+    );
+    const [verifierSignature, _signatureBump] = anchor.web3.PublicKey.findProgramAddressSync(
+      [basicState.toBuffer()],
+      verifierProgram.programId,
+    );
+
+    await airdropProgram.methods.configure(
+      basicSeed,
+    )
+      .accounts({
+        payer: provider.publicKey,
+        state: basicState,
+        vault: basicVault,
+        mint,
+        verifierSignature,
+        tokenProgram: TOKEN_PROGRAM_ID,
+        systemProgram: anchor.web3.SystemProgram.programId,
+        rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+      })
+      .rpc({ skipPreflight: true });
+
+    await mintToAccount(provider, mint, basicVault, airdropAmount, provider.publicKey);
+    const recipient = await createTokenAccount(provider, mint, provider.publicKey);
+    await verifierProgram.methods.claim(
+      airdropAmount,
     )
       .accounts({
         authority: provider.publicKey,
-        unusedVerificationState: provider.publicKey,
-        unusedRecipient: provider.publicKey,
+        cpiAuthority: verifierSignature,
+        airdropState: basicState,
+        vault: basicVault,
+        recipient,
+        tokenProgram: TOKEN_PROGRAM_ID,
+        airdropProgram: airdropProgram.programId,
       })
-      .rpc();
-    console.log('Verifiaction signature', tx);
+      .rpc({ skipPreflight: true });
   });
 });

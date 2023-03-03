@@ -19,17 +19,15 @@ pub mod airdrop {
     pub fn configure(
         ctx: Context<Configure>,
         state_seed: [u8; 32],
-        verifier_instruction_prefix: [u8; 8],
     ) -> Result<()> {
-        handle_configure(ctx, state_seed, verifier_instruction_prefix)
+        handle_configure(ctx, state_seed)
     }
 
     pub fn claim<'info>(
         ctx: Context<'_, '_, '_, 'info, Claim<'info>>,
         amount: u64,
-        verifier_data: Vec<u8>,
     ) -> Result<()> {
-        handle_claim(ctx, amount, verifier_data)
+        handle_claim(ctx, amount)
     }
 
     pub fn close(ctx: Context<Close>) -> Result<()> {

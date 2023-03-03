@@ -12,8 +12,8 @@ declare_id!("4ibGmfZ6WU9qDc231sTRsTTHoDjQ1L6wxkrEAiEvKfLm");
 pub mod merkle_verifier {
     use super::*;
 
-    pub fn verify(ctx: Context<Verify>, amount: u64, verification_data: Vec<u8>) -> Result<()> {
-        handle_verify(ctx, amount, verification_data)
+    pub fn claim(ctx: Context<Claim>, amount: u64, verification_data: Vec<u8>) -> Result<()> {
+        handle_claim(ctx, amount, verification_data)
     }
 
     pub fn init(ctx: Context<Init>, seed: [u8; 32], root: [u8; 32]) -> Result<()> {

@@ -1,5 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_lang::solana_program::keccak::*;
+use anchor_spl::token::{Token, TokenAccount};
+use airdrop::program::Airdrop as AirdropProgram;
 
 declare_id!("EmsREpwoUtHnmg8aSCqmTFyfp71vnnFCdZozohcrZPeL");
 
@@ -12,12 +14,36 @@ pub mod password_verifier {
         Ok(())
     }
 
-    pub fn verify(ctx: Context<Verify>, _amount: u64, verification_data: Vec<u8>) -> Result<()> {
-        let verification_data_slice: &[u8] = verification_data.as_slice();
+    pub fn claim(ctx: Context<Claim>, amount: u64, password: Vec<u8>) -> Result<()> {
+        // Do verification.
+        let verification_data_slice: &[u8] = password.as_slice();
         assert_eq!(
             hashv(&[verification_data_slice]).as_ref(),
             ctx.accounts.verification_state.password_hash,
         );
+
+        // Call the CPI to claim
+        let claim_accounts = airdrop::cpi::accounts::Claim {
+            authority: ctx.accounts.cpi_authority.to_account_info(),
+            state: ctx.accounts.airdrop_state.to_account_info(),
+            vault: ctx.accounts.vault.to_account_info(),
+            recipient: ctx.accounts.recipient.to_account_info(),
+            token_program: ctx.accounts.token_program.to_account_info(),
+        };
+        let cpi_program = ctx.accounts.airdrop_program.to_account_info();
+    
+        airdrop::cpi::claim(
+            CpiContext::new_with_signer(
+                cpi_program,
+                claim_accounts,
+                &[&[
+                    &ctx.accounts.airdrop_state.key().to_bytes(),
+                    &[*ctx.bumps.get("cpi_authority").unwrap()],
+                ]],
+            ),
+            amount,
+        )?;
+
         Ok(())
     }
 }
@@ -48,11 +74,22 @@ pub struct Init<'info> {
 
 #[derive(Accounts)]
 #[instruction(amount: u64, verification_data: Vec<u8>)]
-pub struct Verify<'info> {
+pub struct Claim<'info> {
     pub authority: Signer<'info>,
 
     pub verification_state: Account<'info, VerificationState>,
 
-    /// CHECK: Not used
-    pub unused_recipient: UncheckedAccount<'info>,
+    #[account(seeds = [&airdrop_state.key().to_bytes()], bump)]
+    /// CHECK: Checked in the CPI
+    pub cpi_authority: UncheckedAccount<'info>,
+    /// CHECK: Checked in the CPI
+    pub airdrop_state: UncheckedAccount<'info>,
+    #[account(mut)]
+    pub vault: Account<'info, TokenAccount>,
+    #[account(mut)]
+    pub recipient: Account<'info, TokenAccount>,
+    pub token_program: Program<'info, Token>,
+
+    /// Program which actually calls for the token transfer.
+    pub airdrop_program: Program<'info, AirdropProgram>,
 }
