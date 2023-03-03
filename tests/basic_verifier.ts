@@ -1,7 +1,6 @@
 import * as anchor from '@coral-xyz/anchor';
 import { Program, Provider } from '@project-serum/anchor';
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import { PublicKey } from '@solana/web3.js';
 import { Airdrop } from '../target/types/airdrop';
 import { BasicVerifier } from '../target/types/basic_verifier';
 import { createMint, createTokenAccount, mintToAccount } from './utils/utils';
@@ -9,18 +8,15 @@ import { createMint, createTokenAccount, mintToAccount } from './utils/utils';
 const crypto = require('crypto');
 
 describe('basic_verifier', () => {
-  // Configure the client to use the local cluster.
   anchor.setProvider(anchor.AnchorProvider.env());
-
   const provider: Provider = anchor.AnchorProvider.env();
 
   const airdropProgram = anchor.workspace.Airdrop as Program<Airdrop>;
   const verifierProgram = anchor.workspace.BasicVerifier as Program<BasicVerifier>;
-  let mint: PublicKey;
 
-  it('Verify', async () => {
+  it('Basic Claim', async () => {
     const airdropAmount = new anchor.BN(1_000_000);
-    mint = await createMint(provider, provider.publicKey);
+    const mint = await createMint(provider, provider.publicKey);
 
     const basicSeed = crypto.randomBytes(32);
     const [basicState, _stateBump] = anchor.web3.PublicKey.findProgramAddressSync(

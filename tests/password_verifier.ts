@@ -11,24 +11,23 @@ const crypto = require('crypto');
 
 describe('password_verifier', () => {
   anchor.setProvider(anchor.AnchorProvider.env());
-
   const provider: Provider = anchor.AnchorProvider.env();
 
   const airdropProgram = anchor.workspace.Airdrop as Program<Airdrop>;
   const verifierProgram = anchor.workspace.PasswordVerifier as Program<PasswordVerifier>;
-  let mint: PublicKey;
-  const PASSWORD = 'PASSWORD';
 
-  const verifierSeed = crypto.randomBytes(32);
-  const [passwordVerifierState, _passwordVerifierBump] = (
-    anchor.web3.PublicKey.findProgramAddressSync(
-      [verifierSeed],
-      verifierProgram.programId,
-    ));
+  it('Password Claim', async () => {
+    const PASSWORD = 'PASSWORD';
+  
+    const verifierSeed = crypto.randomBytes(32);
+    const [passwordVerifierState, _passwordVerifierBump] = (
+      anchor.web3.PublicKey.findProgramAddressSync(
+        [verifierSeed],
+        verifierProgram.programId,
+      ));
 
-  it('Verify', async () => {
     const airdropAmount = new anchor.BN(1_000_000);
-    mint = await createMint(provider, provider.publicKey);
+    const mint = await createMint(provider, provider.publicKey);
 
     const passwordSeed = crypto.randomBytes(32);
     const [passwordState, _stateBump] = anchor.web3.PublicKey.findProgramAddressSync(
