@@ -92,6 +92,7 @@ pub struct Claim<'info> {
     #[account(seeds = [&airdrop_state.key().to_bytes()], bump)]
     /// CHECK: Checked in the CPI
     pub cpi_authority: UncheckedAccount<'info>,
+    #[account(constraint = airdrop_state.key.as_ref() == verification_state.airdrop_state.as_ref())]
     /// CHECK: Checked in the CPI
     pub airdrop_state: UncheckedAccount<'info>,
     #[account(mut)]

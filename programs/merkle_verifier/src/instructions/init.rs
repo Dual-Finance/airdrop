@@ -15,11 +15,15 @@ pub struct Init<'info> {
     )]
     pub state: Account<'info, VerifierState>,
 
+    /// CHECK: Not used, only an account info.
+    pub airdrop_state: AccountInfo<'info>,
+
     pub system_program: Program<'info, System>,
 }
 
 pub fn handle_init(ctx: Context<Init>, _seed: [u8; 32], root: [u8; 32]) -> Result<()> {
     ctx.accounts.state.root = root;
+    ctx.accounts.state.airdrop_state = ctx.accounts.airdrop_state.key();
 
     Ok(())
 }

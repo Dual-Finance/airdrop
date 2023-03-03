@@ -11,6 +11,7 @@ pub mod password_verifier {
 
     pub fn init(ctx: Context<Init>, _seed: [u8; 32], password_hash: [u8; 32]) -> Result<()> {
         ctx.accounts.verification_state.password_hash = password_hash;
+        ctx.accounts.verification_state.airdrop_state = ctx.accounts.airdrop_state.key();
         Ok(())
     }
 
@@ -51,6 +52,7 @@ pub mod password_verifier {
 #[account]
 pub struct VerificationState {
     pub password_hash: [u8; 32],
+    pub airdrop_state: Pubkey,
 }
 
 #[derive(Accounts)]
@@ -68,6 +70,10 @@ pub struct Init<'info> {
     )]
     pub verification_state: Account<'info, VerificationState>,
 
+    /// CHECK: Only saved for making sure the claim matches the correct
+    /// verification state.
+    pub airdrop_state: AccountInfo<'info>,
+
     pub system_program: Program<'info, System>,
     pub rent: Sysvar<'info, Rent>,
 }
@@ -82,6 +88,8 @@ pub struct Claim<'info> {
     #[account(seeds = [&airdrop_state.key().to_bytes()], bump)]
     /// CHECK: Checked in the CPI
     pub cpi_authority: UncheckedAccount<'info>,
+
+    #[account(constraint = airdrop_state.key.as_ref() == verification_state.airdrop_state.as_ref())]
     /// CHECK: Checked in the CPI
     pub airdrop_state: UncheckedAccount<'info>,
     #[account(mut)]

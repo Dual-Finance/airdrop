@@ -83,6 +83,7 @@ describe('merkle_verifier', () => {
       .accounts({
         payer: provider.publicKey,
         state: merkleVerifierState,
+        airdropState: merkleState,
         systemProgram: anchor.web3.SystemProgram.programId,
       })
       .rpc({ skipPreflight: true });
@@ -191,6 +192,7 @@ describe('merkle_verifier', () => {
       .accounts({
         payer: provider.publicKey,
         state: merkleVerifierState,
+        airdropState: merkleState,
         systemProgram: anchor.web3.SystemProgram.programId,
       })
       .rpc({ skipPreflight: true });
@@ -321,6 +323,7 @@ describe('merkle_verifier', () => {
       .accounts({
         payer: provider.publicKey,
         state: merkleVerifierState,
+        airdropState: merkleState,
         systemProgram: anchor.web3.SystemProgram.programId,
       })
       .rpc({ skipPreflight: true });
