@@ -1,7 +1,6 @@
 import * as anchor from '@coral-xyz/anchor';
 import { Program, Provider } from '@project-serum/anchor';
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import { PublicKey } from '@solana/web3.js';
 import { keccak_256 } from 'js-sha3';
 import { Airdrop } from '../target/types/airdrop';
 import { PasswordVerifier } from '../target/types/password_verifier';
@@ -18,7 +17,7 @@ describe('password_verifier', () => {
 
   it('Password Claim', async () => {
     const PASSWORD = 'PASSWORD';
-  
+
     const verifierSeed = crypto.randomBytes(32);
     const [passwordVerifierState, _passwordVerifierBump] = (
       anchor.web3.PublicKey.findProgramAddressSync(
