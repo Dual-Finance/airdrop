@@ -20,7 +20,7 @@ pub mod airdrop {
         handle_configure(ctx, state_seed)
     }
 
-    pub fn claim<'info>(ctx: Context<'_, '_, '_, 'info, Claim<'info>>, amount: u64) -> Result<()> {
+    pub fn claim<'info>(ctx: Context<Claim>, amount: u64) -> Result<()> {
         handle_claim(ctx, amount)
     }
 

@@ -27,8 +27,8 @@ pub struct Claim<'info> {
     pub token_program: Program<'info, Token>,
 }
 
-pub fn handle_claim<'info>(
-    ctx: Context<'_, '_, '_, 'info, Claim<'info>>,
+pub fn handle_claim(
+    ctx: Context<Claim>,
     amount: u64,
 ) -> Result<()> {
     msg!("Handling claim");
