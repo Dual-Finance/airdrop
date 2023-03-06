@@ -1,4 +1,4 @@
-use airdrop::program::Airdrop as AirdropProgram;
+use sol_airdrop::program::SolAirdrop as AirdropProgram;
 use anchor_lang::prelude::*;
 use anchor_spl::token::{Token, TokenAccount};
 
@@ -12,7 +12,7 @@ pub mod basic_verifier {
         // No verification to do.
 
         // Call the CPI to claim
-        let claim_accounts = airdrop::cpi::accounts::Claim {
+        let claim_accounts = sol_airdrop::cpi::accounts::Claim {
             authority: ctx.accounts.cpi_authority.to_account_info(),
             state: ctx.accounts.airdrop_state.to_account_info(),
             vault: ctx.accounts.vault.to_account_info(),
@@ -21,7 +21,7 @@ pub mod basic_verifier {
         };
         let cpi_program = ctx.accounts.airdrop_program.to_account_info();
 
-        airdrop::cpi::claim(
+        sol_airdrop::cpi::claim(
             CpiContext::new_with_signer(
                 cpi_program,
                 claim_accounts,

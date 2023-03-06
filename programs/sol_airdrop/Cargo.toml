@@ -1,5 +1,5 @@
 [package]
-name = "airdrop"
+name = "sol-airdrop"
 version = "0.2.0"
 description = "Created with Anchor"
 edition = "2021"
@@ -7,7 +7,7 @@ license = "Apache-2.0"
 
 [lib]
 crate-type = ["cdylib", "lib"]
-name = "airdrop"
+name = "sol_airdrop"
 
 [features]
 no-entrypoint = []

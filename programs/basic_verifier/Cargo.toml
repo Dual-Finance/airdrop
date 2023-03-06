@@ -1,7 +1,7 @@
 [package]
 name = "basic_verifier"
 version = "0.1.0"
-description = "Created with Anchor"
+description = "Demo example of an airdrop verifier"
 edition = "2021"
 
 [lib]
@@ -16,7 +16,7 @@ cpi = ["no-entrypoint"]
 default = []
 
 [dependencies]
-airdrop = { path = "../airdrop", features = ["cpi"] }
+sol-airdrop = { path = "../sol_airdrop", features = ["cpi"] }
 anchor-lang = { version = "0.26.0" }
 anchor-spl = { version = "0.26.0" }
 solana-program = "1.13.5"

@@ -2,7 +2,7 @@ import * as anchor from '@coral-xyz/anchor';
 import { Program, Provider } from '@project-serum/anchor';
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { keccak_256 } from 'js-sha3';
-import { Airdrop } from '../target/types/airdrop';
+import { SolAirdrop } from '../target/types/sol_airdrop';
 import { PasswordVerifier } from '../target/types/password_verifier';
 import { createMint, createTokenAccount, mintToAccount } from './utils/utils';
 
@@ -12,7 +12,7 @@ describe('password_verifier', () => {
   anchor.setProvider(anchor.AnchorProvider.env());
   const provider: Provider = anchor.AnchorProvider.env();
 
-  const airdropProgram = anchor.workspace.Airdrop as Program<Airdrop>;
+  const airdropProgram = anchor.workspace.SolAirdrop as Program<SolAirdrop>;
   const verifierProgram = anchor.workspace.PasswordVerifier as Program<PasswordVerifier>;
 
   it('Password Claim', async () => {

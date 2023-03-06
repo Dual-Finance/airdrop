@@ -1,7 +1,7 @@
 import * as anchor from '@coral-xyz/anchor';
 import { Program, Provider } from '@project-serum/anchor';
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import { Airdrop } from '../target/types/airdrop';
+import { SolAirdrop } from '../target/types/sol_airdrop';
 import { BasicVerifier } from '../target/types/basic_verifier';
 import { createMint, createTokenAccount, mintToAccount } from './utils/utils';
 
@@ -11,7 +11,7 @@ describe('basic_verifier', () => {
   anchor.setProvider(anchor.AnchorProvider.env());
   const provider: Provider = anchor.AnchorProvider.env();
 
-  const airdropProgram = anchor.workspace.Airdrop as Program<Airdrop>;
+  const airdropProgram = anchor.workspace.SolAirdrop as Program<SolAirdrop>;
   const verifierProgram = anchor.workspace.BasicVerifier as Program<BasicVerifier>;
 
   it('Basic Claim', async () => {

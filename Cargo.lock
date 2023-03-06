@@ -59,15 +59,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "airdrop"
-version = "0.2.0"
-dependencies = [
- "anchor-lang",
- "anchor-spl",
- "solana-program",
-]
-
-[[package]]
 name = "anchor-attribute-access-control"
 version = "0.26.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -388,9 +379,9 @@ checksum = "9e1b586273c5702936fe7b7d6896644d8be71e6314cfe09d3167c95f712589e8"
 name = "basic_verifier"
 version = "0.1.0"
 dependencies = [
- "airdrop",
  "anchor-lang",
  "anchor-spl",
+ "sol-airdrop",
  "solana-program",
 ]
 
@@ -1182,9 +1173,9 @@ dependencies = [
 name = "merkle_verifier"
 version = "0.1.0"
 dependencies = [
- "airdrop",
  "anchor-lang",
  "anchor-spl",
+ "sol-airdrop",
  "solana-program",
 ]
 
@@ -1320,9 +1311,9 @@ dependencies = [
 name = "password_verifier"
 version = "0.1.0"
 dependencies = [
- "airdrop",
  "anchor-lang",
  "anchor-spl",
+ "sol-airdrop",
  "solana-program",
 ]
 
@@ -1765,6 +1756,15 @@ name = "smallvec"
 version = "1.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a507befe795404456341dfab10cef66ead4c041f62b8b11bbb92bffe5d0953e0"
+
+[[package]]
+name = "sol-airdrop"
+version = "0.2.0"
+dependencies = [
+ "anchor-lang",
+ "anchor-spl",
+ "solana-program",
+]
 
 [[package]]
 name = "solana-frozen-abi"
