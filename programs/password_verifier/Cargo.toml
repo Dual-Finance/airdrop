@@ -16,7 +16,7 @@ cpi = ["no-entrypoint"]
 default = []
 
 [dependencies]
-sol-airdrop = { path = "../sol_airdrop", features = ["cpi"] }
+sol-airdrop = { version = "0.2.0", features = [ "no-entrypoint", "cpi"] }
 anchor-lang = { version = "0.26.0" }
 anchor-spl = { version = "0.26.0" }
 solana-program = "1.13.5"
