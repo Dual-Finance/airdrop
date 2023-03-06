@@ -1,6 +1,6 @@
-use sol_airdrop::program::SolAirdrop as AirdropProgram;
 use anchor_lang::prelude::*;
 use anchor_spl::token::{Token, TokenAccount};
+use sol_airdrop::program::SolAirdrop as AirdropProgram;
 
 declare_id!("FEdxZUg4BtWvMy7gy7pXEoj1isqBRYmbYdpyZfq5QZYr");
 

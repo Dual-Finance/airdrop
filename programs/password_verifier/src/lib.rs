@@ -1,7 +1,7 @@
-use sol_airdrop::program::SolAirdrop as AirdropProgram;
 use anchor_lang::prelude::*;
 use anchor_lang::solana_program::keccak::*;
 use anchor_spl::token::{Token, TokenAccount};
+use sol_airdrop::program::SolAirdrop as AirdropProgram;
 
 declare_id!("EmsREpwoUtHnmg8aSCqmTFyfp71vnnFCdZozohcrZPeL");
 

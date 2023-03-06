@@ -1,6 +1,6 @@
 use crate::*;
-use sol_airdrop::program::SolAirdrop as AirdropProgram;
 use anchor_spl::token::{Token, TokenAccount};
+use sol_airdrop::program::SolAirdrop as AirdropProgram;
 
 pub fn handle_claim(ctx: Context<Claim>, amount: u64, verification_data: Vec<u8>) -> Result<()> {
     // Do the verification
