@@ -20,6 +20,7 @@ pub fn verify_proof(proof: Vec<[u8; 32]>, root: [u8; 32], leaf: [u8; 32]) {
 #[account]
 pub struct VerifierState {
     pub root: [u8; 32],
+    pub airdrop_state: Pubkey,
 }
 
 /// Receipt for claiming. This prevents multiple redemptions.

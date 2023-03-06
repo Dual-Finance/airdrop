@@ -3,7 +3,7 @@ seeds = false
 skip-lint = false
 
 [programs.localnet]
-airdrop = "tXmC2ARKqzPoX6wQAVmDj25XAQUN6JQe8iz19QR5Lo3"
+sol_airdrop = "tXmC2ARKqzPoX6wQAVmDj25XAQUN6JQe8iz19QR5Lo3"
 basic_verifier = "FEdxZUg4BtWvMy7gy7pXEoj1isqBRYmbYdpyZfq5QZYr"
 merkle_verifier = "4ibGmfZ6WU9qDc231sTRsTTHoDjQ1L6wxkrEAiEvKfLm"
 password_verifier = "EmsREpwoUtHnmg8aSCqmTFyfp71vnnFCdZozohcrZPeL"
