@@ -8,7 +8,6 @@ use crate::VAULT_SEED;
 #[derive(Accounts)]
 #[instruction(amount: u64)]
 pub struct Claim<'info> {
-    // TODO: Add one time hack for backwards compatibility of DUAL CSA
     #[account(constraint = authority.key.as_ref() == state.verifier_signature.key().as_ref() @ ErrorCode::IncorrectVerifierSignature)]
     pub authority: Signer<'info>,
 
