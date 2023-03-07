@@ -1,6 +1,6 @@
 use crate::*;
 use anchor_spl::token::{Token, TokenAccount};
-use sol_airdrop::program::SolAirdrop as AirdropProgram;
+use dual_airdrop::program::DualAirdrop as AirdropProgram;
 
 pub fn handle_claim(ctx: Context<Claim>, amount: u64, verification_data: Vec<u8>) -> Result<()> {
     // Do the verification
@@ -43,7 +43,7 @@ pub fn handle_claim(ctx: Context<Claim>, amount: u64, verification_data: Vec<u8>
     ctx.accounts.receipt.recipient = ctx.accounts.recipient.owner.key();
 
     // Call the CPI to claim
-    let claim_accounts = sol_airdrop::cpi::accounts::Claim {
+    let claim_accounts = dual_airdrop::cpi::accounts::Claim {
         authority: ctx.accounts.cpi_authority.to_account_info(),
         state: ctx.accounts.airdrop_state.to_account_info(),
         vault: ctx.accounts.vault.to_account_info(),
@@ -54,7 +54,7 @@ pub fn handle_claim(ctx: Context<Claim>, amount: u64, verification_data: Vec<u8>
 
     // Requires the airdrop state as a key so you cannot just claim for a
     // different one.
-    sol_airdrop::cpi::claim(
+    dual_airdrop::cpi::claim(
         CpiContext::new_with_signer(
             cpi_program,
             claim_accounts,
