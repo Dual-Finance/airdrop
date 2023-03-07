@@ -1,7 +1,7 @@
 [package]
 name = "merkle_verifier"
 version = "0.1.0"
-description = "Example of a merkle proof verifier for sol-airdrop"
+description = "Example of a merkle proof verifier for dual-airdrop"
 edition = "2021"
 
 [lib]
@@ -16,7 +16,7 @@ cpi = ["no-entrypoint"]
 default = []
 
 [dependencies]
-sol-airdrop = { version = "0.2.0", features = [ "no-entrypoint", "cpi"] }
+dual-airdrop = { version = "0.0.1", features = [ "no-entrypoint", "cpi"] }
 anchor-lang = { version = "0.26.0" }
 anchor-spl = { version = "0.26.0" }
 solana-program = "1.13.5"

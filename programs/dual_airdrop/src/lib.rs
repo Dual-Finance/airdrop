@@ -13,7 +13,7 @@ pub use crate::instructions::*;
 declare_id!("tXmC2ARKqzPoX6wQAVmDj25XAQUN6JQe8iz19QR5Lo3");
 
 #[program]
-pub mod sol_airdrop {
+pub mod dual_airdrop {
     use super::*;
 
     pub fn configure(ctx: Context<Configure>, state_seed: [u8; 32]) -> Result<()> {

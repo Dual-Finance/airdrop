@@ -1,13 +1,13 @@
 [package]
-name = "sol-airdrop"
-version = "0.2.0"
-description = "Created with Anchor"
+name = "dual-airdrop"
+version = "0.0.1"
+description = "Airdrop tool built by Dual Finance"
 edition = "2021"
 license = "Apache-2.0"
 
 [lib]
 crate-type = ["cdylib", "lib"]
-name = "sol_airdrop"
+name = "dual_airdrop"
 
 [features]
 no-entrypoint = []
