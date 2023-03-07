@@ -2,7 +2,7 @@ import * as anchor from '@coral-xyz/anchor';
 import { Program, Provider } from '@project-serum/anchor';
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import assert from 'assert';
-import { SolAirdrop } from '../target/types/sol_airdrop';
+import { DualAirdrop } from '../target/types/dual_airdrop';
 import { MerkleVerifier } from '../target/types/merkle_verifier';
 import { BalanceTree } from './utils/balance_tree';
 import {
@@ -15,7 +15,7 @@ describe('merkle_verifier', () => {
   anchor.setProvider(anchor.AnchorProvider.env());
   const provider: Provider = anchor.AnchorProvider.env();
 
-  const airdropProgram = anchor.workspace.SolAirdrop as Program<SolAirdrop>;
+  const airdropProgram = anchor.workspace.DualAirdrop as Program<DualAirdrop>;
   const verifierProgram = anchor.workspace.MerkleVerifier as Program<MerkleVerifier>;
 
   it('Merkle Claim', async () => {

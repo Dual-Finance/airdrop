@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_lang::solana_program::keccak::*;
 use anchor_spl::token::{Token, TokenAccount};
-use sol_airdrop::program::SolAirdrop as AirdropProgram;
+use dual_airdrop::program::DualAirdrop as AirdropProgram;
 
 declare_id!("EmsREpwoUtHnmg8aSCqmTFyfp71vnnFCdZozohcrZPeL");
 
@@ -23,7 +23,7 @@ pub mod password_verifier {
         );
 
         // Call the CPI to claim
-        let claim_accounts = sol_airdrop::cpi::accounts::Claim {
+        let claim_accounts = dual_airdrop::cpi::accounts::Claim {
             authority: ctx.accounts.cpi_authority.to_account_info(),
             state: ctx.accounts.airdrop_state.to_account_info(),
             vault: ctx.accounts.vault.to_account_info(),
@@ -32,7 +32,7 @@ pub mod password_verifier {
         };
         let cpi_program = ctx.accounts.airdrop_program.to_account_info();
 
-        sol_airdrop::cpi::claim(
+        dual_airdrop::cpi::claim(
             CpiContext::new_with_signer(
                 cpi_program,
                 claim_accounts,
