@@ -16,7 +16,7 @@ cpi = ["no-entrypoint"]
 default = []
 
 [dependencies]
-dual-airdrop = { version = "0.0.1", features = [ "no-entrypoint", "cpi"] }
+dual-airdrop = { version = "0.0.2", features = [ "no-entrypoint", "cpi"] }
 anchor-lang = { version = "0.26.0" }
 anchor-spl = { version = "0.26.0" }
 solana-program = "1.13.5"
