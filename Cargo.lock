@@ -381,7 +381,7 @@ version = "0.1.0"
 dependencies = [
  "anchor-lang",
  "anchor-spl",
- "dual-airdrop 0.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "dual-airdrop 0.0.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "solana-program",
 ]
 
@@ -792,7 +792,7 @@ dependencies = [
 
 [[package]]
 name = "dual-airdrop"
-version = "0.0.2"
+version = "0.0.3"
 dependencies = [
  "anchor-lang",
  "anchor-spl",
@@ -801,9 +801,9 @@ dependencies = [
 
 [[package]]
 name = "dual-airdrop"
-version = "0.0.2"
+version = "0.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "526c98942bb9fab35ddaaa7ce5f2ccebaf73e712134658123f85af6053fcd79b"
+checksum = "910a0146ad9ff9a6cd258420c6699e47e69c2760d700ef61540a6e0d0f3e529b"
 dependencies = [
  "anchor-lang",
  "anchor-spl",
@@ -1195,7 +1195,7 @@ version = "0.1.0"
 dependencies = [
  "anchor-lang",
  "anchor-spl",
- "dual-airdrop 0.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "dual-airdrop 0.0.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "solana-program",
 ]
 
@@ -1333,7 +1333,7 @@ version = "0.1.0"
 dependencies = [
  "anchor-lang",
  "anchor-spl",
- "dual-airdrop 0.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "dual-airdrop 0.0.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "solana-program",
 ]
 
