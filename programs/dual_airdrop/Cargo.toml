@@ -1,6 +1,6 @@
 [package]
 name = "dual-airdrop"
-version = "0.0.2"
+version = "0.0.3"
 description = "Airdrop tool built by Dual Finance"
 edition = "2021"
 license = "Apache-2.0"
