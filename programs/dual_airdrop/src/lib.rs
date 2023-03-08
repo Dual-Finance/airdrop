@@ -10,7 +10,7 @@ pub use crate::constants::*;
 pub use crate::errors::ErrorCode;
 pub use crate::instructions::*;
 
-declare_id!("tXmC2ARKqzPoX6wQAVmDj25XAQUN6JQe8iz19QR5Lo3");
+declare_id!("2fJcpdR6qzqDP7fBqvoJQ5PGYdaRFBNyUKZkZf5t12mr");
 
 #[program]
 pub mod dual_airdrop {

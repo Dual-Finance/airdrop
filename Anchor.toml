@@ -3,9 +3,9 @@ seeds = false
 skip-lint = false
 
 [programs.localnet]
-sol_airdrop = "tXmC2ARKqzPoX6wQAVmDj25XAQUN6JQe8iz19QR5Lo3"
+dual_airdrop = "2fJcpdR6qzqDP7fBqvoJQ5PGYdaRFBNyUKZkZf5t12mr"
 basic_verifier = "FEdxZUg4BtWvMy7gy7pXEoj1isqBRYmbYdpyZfq5QZYr"
-merkle_verifier = "4ibGmfZ6WU9qDc231sTRsTTHoDjQ1L6wxkrEAiEvKfLm"
+merkle_verifier = "8tBcmZAMNm11DuGAS2r6PqSA3CKt72amoz8bVj14xRiT"
 password_verifier = "EmsREpwoUtHnmg8aSCqmTFyfp71vnnFCdZozohcrZPeL"
 
 [provider]

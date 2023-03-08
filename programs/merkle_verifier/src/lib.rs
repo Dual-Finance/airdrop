@@ -6,7 +6,7 @@ mod instructions;
 pub use crate::common::*;
 pub use crate::instructions::*;
 
-declare_id!("4ibGmfZ6WU9qDc231sTRsTTHoDjQ1L6wxkrEAiEvKfLm");
+declare_id!("8tBcmZAMNm11DuGAS2r6PqSA3CKt72amoz8bVj14xRiT");
 
 #[program]
 pub mod merkle_verifier {
