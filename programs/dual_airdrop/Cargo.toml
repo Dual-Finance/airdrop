@@ -1,5 +1,5 @@
 [package]
-name = "dual_airdrop"
+name = "dual-airdrop"
 version = "0.0.3"
 description = "Airdrop tool built by Dual Finance"
 edition = "2021"
