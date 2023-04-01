@@ -33,7 +33,7 @@ jobs:
           anchor --version
       - name: Verifiable Build Basic Verifier
         run: |
-          echo "APP_NAME=$(cargo metadata --no-deps --format-version 1 | jq --raw-output '.packages[0].name')" >> $GITHUB_ENV 
+          echo "APP_NAME=basic_verifier" >> $GITHUB_ENV 
           anchor build --verifiable --docker-image projectserum/build:v0.27.0
       - name: Generate Checksum
         run: |
@@ -51,8 +51,7 @@ jobs:
 
       - name: Verifiable Build Airdrop
         run: |
-          echo "APP_NAME=$(cargo metadata --no-deps --format-version 1 | jq --raw-output '.packages[1].name')" >> $GITHUB_ENV 
-          anchor build --verifiable --docker-image projectserum/build:v0.27.0
+          echo "APP_NAME=dual_airdrop" >> $GITHUB_ENV 
       - name: Generate Checksum
         run: |
           echo "CHECKSUM=$(sha256sum ./target/verifiable/${{ env.APP_NAME }}.so | head -c 64)" >> $GITHUB_ENV
@@ -69,8 +68,7 @@ jobs:
 
       - name: Verifiable Build Merkle Verifier
         run: |
-          echo "APP_NAME=$(cargo metadata --no-deps --format-version 1 | jq --raw-output '.packages[2].name')" >> $GITHUB_ENV 
-          anchor build --verifiable --docker-image projectserum/build:v0.27.0
+          echo "APP_NAME=merkle_verifier" >> $GITHUB_ENV 
       - name: Generate Checksum
         run: |
           echo "CHECKSUM=$(sha256sum ./target/verifiable/${{ env.APP_NAME }}.so | head -c 64)" >> $GITHUB_ENV
@@ -87,8 +85,7 @@ jobs:
 
       - name: Verifiable Build Password Verifier
         run: |
-          echo "APP_NAME=$(cargo metadata --no-deps --format-version 1 | jq --raw-output '.packages[3].name')" >> $GITHUB_ENV 
-          anchor build --verifiable --docker-image projectserum/build:v0.27.0
+          echo "APP_NAME=password_verifier" >> $GITHUB_ENV 
       - name: Generate Checksum
         run: |
           echo "CHECKSUM=$(sha256sum ./target/verifiable/${{ env.APP_NAME }}.so | head -c 64)" >> $GITHUB_ENV
