@@ -51,7 +51,7 @@ jobs:
 
       - name: Verifiable Build Airdrop
         run: |
-          echo "APP_NAME=dual_airdrop" >> $GITHUB_ENV 
+          echo "APP_NAME=dual-airdrop" >> $GITHUB_ENV 
       - name: Generate Checksum
         run: |
           echo "CHECKSUM=$(sha256sum ./target/verifiable/${{ env.APP_NAME }}.so | head -c 64)" >> $GITHUB_ENV
