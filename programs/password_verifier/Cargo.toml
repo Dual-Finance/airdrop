@@ -17,6 +17,6 @@ default = []
 
 [dependencies]
 dual-airdrop = { version = "0.0.3", features = [ "no-entrypoint", "cpi"] }
-anchor-lang = { version = "0.26.0" }
+anchor-lang = { version = "0.28.0" }
 anchor-spl = { version = "0.26.0" }
 solana-program = "1.13.5"
