@@ -23,5 +23,4 @@ pub mod orca_verifier {
     pub fn claim(ctx: Context<Claim>) -> Result<()> {
         handle_claim(ctx)
     }
-
 }
