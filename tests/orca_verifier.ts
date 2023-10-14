@@ -1,10 +1,10 @@
 import * as anchor from '@coral-xyz/anchor';
 import { Program, Provider } from '@project-serum/anchor';
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
+import { PublicKey } from '@solana/web3.js';
 import { DualAirdrop } from '../target/types/dual_airdrop';
 import { OrcaVerifier } from '../target/types/orca_verifier';
 import { createMint, createTokenAccount, mintToAccount } from './utils/utils';
-import { PublicKey } from '@solana/web3.js';
 
 const crypto = require('crypto');
 
@@ -68,12 +68,12 @@ describe('orca_verifier', () => {
     await verifierProgram.methods.init(
       // @ts-ignore
       verifierSeed,
-      rewardIndex
+      rewardIndex,
     )
       .accounts({
         authority: provider.publicKey,
         state: orcaVerifierState,
-        airdropState: airdropState,
+        airdropState,
         pool,
         systemProgram: anchor.web3.SystemProgram.programId,
       })
@@ -94,7 +94,7 @@ describe('orca_verifier', () => {
         authority: provider.publicKey,
         verifierState: orcaVerifierState,
         position,
-        receipt: receipt,
+        receipt,
         systemProgram: anchor.web3.SystemProgram.programId,
       })
       .rpc({ skipPreflight: true });
@@ -107,7 +107,7 @@ describe('orca_verifier', () => {
         positionTokenAccount,
         receipt,
         cpiAuthority: verifierSignature,
-        airdropState: airdropState,
+        airdropState,
         vault: orcaVault,
         recipient,
         tokenProgram: TOKEN_PROGRAM_ID,
