@@ -17,4 +17,14 @@ wallet = "~/.config/solana/id.json"
 test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
 
 [test.validator]
-url = "https://api.devnet.solana.com"
+url = "https://api.mainnet-beta.solana.com"
+
+# Orca Position
+[[test.validator.clone]]
+address = "HA1hk5mneoFcdwe9wC33eaofSeo9yVkXPsAonLm7jUCR"
+# Orca Position token account
+[[test.validator.clone]]
+address = "ByPiNz9jRbgY69jwux3rrs5FmQXFhnvT25Vw2U2D8PxT"
+# Orca Whirlpool
+[[test.validator.clone]]
+address = "HGw4exa5vdxhJHNVyyxhCc6ZwycwHQEVzpRXMDPDAmVP"

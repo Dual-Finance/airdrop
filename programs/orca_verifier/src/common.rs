@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
-use solana_program::program_option::COption;
 use anchor_spl::token::TokenAccount;
+use solana_program::program_option::COption;
 
 /// State for the verifier
 #[account]
@@ -22,7 +22,7 @@ pub struct Receipt {
 
     // bump for this receipt
     pub bump: u8,
-    
+
     pub position: Pubkey,
 }
 

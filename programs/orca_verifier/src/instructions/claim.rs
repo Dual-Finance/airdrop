@@ -1,7 +1,7 @@
 use crate::*;
-use whirlpools::{Position, PositionRewardInfo};
 use anchor_spl::token::{Token, TokenAccount};
 use dual_airdrop::program::DualAirdrop as AirdropProgram;
+use whirlpools::{Position, PositionRewardInfo};
 
 // Goal is to mimic the logic here
 // https://github.com/orca-so/whirlpools/blob/main/programs/whirlpool/src/instructions/collect_reward.rs
@@ -11,7 +11,8 @@ pub fn handle_claim(ctx: Context<Claim>) -> Result<()> {
         ctx.accounts.recipient.owner,
     )?;
 
-    let position_reward_info: PositionRewardInfo = ctx.accounts.position.reward_infos[ctx.accounts.verifier_state.reward_index as usize];
+    let position_reward_info: PositionRewardInfo =
+        ctx.accounts.position.reward_infos[ctx.accounts.verifier_state.reward_index as usize];
     let amount: u64 = position_reward_info.amount_owed;
 
     ctx.accounts.receipt.fee_checkpoint = ctx.accounts.position.fee_growth_checkpoint_a;
@@ -67,7 +68,7 @@ pub struct Claim<'info> {
 
     #[account(
         mut,
-        seeds = ["Receipt".as_ref(), verifier_state.key().as_ref(), recipient.key().as_ref()],
+        seeds = ["Receipt".as_ref(), verifier_state.key().as_ref(), position.key().as_ref()],
         constraint = receipt.position.key().as_ref() == position.key().as_ref(),
         bump = receipt.bump,
     )]
@@ -87,8 +88,6 @@ pub struct Claim<'info> {
 
     /// Program which actually calls for the token transfer.
     pub airdrop_program: Program<'info, AirdropProgram>,
-
-    pub system_program: Program<'info, System>,
 }
 
 pub fn handle_init_receipt(ctx: Context<InitReceipt>) -> Result<()> {

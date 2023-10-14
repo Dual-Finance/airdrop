@@ -4,14 +4,14 @@ use crate::*;
 #[instruction(seed: [u8; 32])]
 pub struct Init<'info> {
     #[account(mut)]
-    pub payer: Signer<'info>,
+    pub authority: Signer<'info>,
 
     #[account(
         init,
         seeds = [&seed],
         bump,
         space = 8 + std::mem::size_of::<VerifierState>(),
-        payer = payer
+        payer = authority
     )]
     pub state: Account<'info, VerifierState>,
 
