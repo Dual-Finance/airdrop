@@ -4,7 +4,7 @@
         "lint": "yarn run eslint  --ignore-path .gitignore --ext .ts tests/*"
     },
     "dependencies": {
-        "@coral-xyz/anchor": "^0.26.0",
+        "@coral-xyz/anchor": "^0.29.0",
         "@project-serum/anchor": "^0.26.0",
         "@project-serum/serum": "^0.13.65",
         "@solana/spl-token": "0.3.7",
