@@ -45,6 +45,9 @@ pub fn handle_claim(ctx: Context<Claim>) -> Result<()> {
         amount,
     )?;
 
+    // TODO: Force a claim on the orca rewards so that those rewards are synced
+    // with these.
+    
     Ok(())
 }
 
