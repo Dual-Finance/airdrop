@@ -15,6 +15,10 @@ pub fn handle_claim(ctx: Context<Claim>) -> Result<()> {
         ctx.accounts.position.reward_infos[ctx.accounts.verifier_state.reward_index as usize];
     let amount: u64 = position_reward_info.amount_owed;
 
+    if ctx.accounts.position.fee_growth_checkpoint_a <= ctx.accounts.receipt.fee_checkpoint {
+        msg!("Already claimed reward");
+        return Ok(());
+    }
     ctx.accounts.receipt.fee_checkpoint = ctx.accounts.position.fee_growth_checkpoint_a;
 
     // Call the CPI to claim
@@ -56,7 +60,6 @@ pub struct Claim<'info> {
     #[account(
         constraint = position.whirlpool.as_ref() == verifier_state.pool.as_ref(),
         constraint = airdrop_state.key.as_ref() == verifier_state.airdrop_state.as_ref(),
-        constraint = position.fee_growth_checkpoint_a > receipt.fee_checkpoint,
     )]
     pub position: Account<'info, Position>,
 
