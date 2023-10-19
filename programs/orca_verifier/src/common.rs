@@ -14,18 +14,8 @@ pub struct VerifierState {
     pub airdrop_state: Pubkey,
 }
 
-/// Receipt for claiming. This prevents multiple redemptions.
-#[account]
-pub struct Receipt {
-    // Assumes that a user can only collect rewards once per fee checkpoint
-    pub fee_checkpoint: u128,
-
-    // bump for this receipt
-    pub bump: u8,
-
-    pub position: Pubkey,
-}
-
+// Similar except we do not require Signer, the position_authority here is the
+// recipient of the airdrop. Name is kept to match.
 // https://github.com/orca-so/whirlpools/blob/main/programs/whirlpool/src/util/util.rs#L19C1-L37C2
 pub fn verify_position_authority<'info>(
     position_token_account: &TokenAccount,

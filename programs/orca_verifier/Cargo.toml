@@ -20,4 +20,4 @@ dual-airdrop = { version = "0.0.3", features = [ "no-entrypoint", "cpi"] }
 anchor-lang = { version = "0.26.0" }
 anchor-spl = { version = "0.26.0" }
 solana-program = "1.13.5"
-whirlpools = "0.3.0"
+whirlpool = { git = "https://github.com/orca-so/whirlpools", tag = "0.11.3", package = "whirlpool", features = ["cpi"] }

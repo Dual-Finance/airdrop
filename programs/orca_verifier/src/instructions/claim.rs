@@ -1,27 +1,89 @@
 use crate::*;
 use anchor_spl::token::{Token, TokenAccount};
 use dual_airdrop::program::DualAirdrop as AirdropProgram;
-use whirlpools::{Position, PositionRewardInfo};
+use whirlpool::{
+    state::{Position, PositionRewardInfo, TickArray, Whirlpool},
+    program::Whirlpool as WhirlpoolProgram,
+};
 
-// Goal is to mimic the logic here
-// https://github.com/orca-so/whirlpools/blob/main/programs/whirlpool/src/instructions/collect_reward.rs
 pub fn handle_claim(ctx: Context<Claim>) -> Result<()> {
     verify_position_authority(
         &ctx.accounts.position_token_account,
         ctx.accounts.recipient.owner,
     )?;
 
+    let update_accounts = whirlpool::cpi::accounts::UpdateFeesAndRewards {
+        whirlpool: ctx.accounts.whirlpool.to_account_info(),
+        position: ctx.accounts.position.to_account_info(),
+        tick_array_lower: ctx.accounts.tick_array_lower.to_account_info(),
+        tick_array_upper: ctx.accounts.tick_array_upper.to_account_info(),
+    };
+
+    // Requires the airdrop state as a key so you cannot just claim for a
+    // different one.
+    whirlpool::cpi::update_fees_and_rewards(
+        CpiContext::new(
+            ctx.accounts.orca_program.to_account_info(),
+            update_accounts,
+        ),
+    )?;
+    ctx.accounts.position.reload()?;
+
     let position_reward_info: PositionRewardInfo =
         ctx.accounts.position.reward_infos[ctx.accounts.verifier_state.reward_index as usize];
     let amount: u64 = position_reward_info.amount_owed;
 
-    if ctx.accounts.position.fee_growth_checkpoint_a <= ctx.accounts.receipt.fee_checkpoint {
-        msg!("Already claimed reward");
-        return Ok(());
-    }
-    ctx.accounts.receipt.fee_checkpoint = ctx.accounts.position.fee_growth_checkpoint_a;
+    // Resets the amount_owed on the Position.
+    let collect_reward0 = whirlpool::cpi::accounts::CollectReward {
+        whirlpool: ctx.accounts.whirlpool.to_account_info(),
+        position: ctx.accounts.position.to_account_info(),
+        position_token_account: ctx.accounts.position_token_account.to_account_info(),
+        position_authority: ctx.accounts.position_authority.to_account_info(),
+        reward_owner_account: ctx.accounts.reward_owner_account0.to_account_info(),
+        reward_vault: ctx.accounts.reward_vault0.to_account_info(),
+        token_program: ctx.accounts.token_program.to_account_info(),
+    };
+    let collect_reward1 = whirlpool::cpi::accounts::CollectReward {
+        whirlpool: ctx.accounts.whirlpool.to_account_info(),
+        position: ctx.accounts.position.to_account_info(),
+        position_token_account: ctx.accounts.position_token_account.to_account_info(),
+        position_authority: ctx.accounts.position_authority.to_account_info(),
+        reward_owner_account: ctx.accounts.reward_owner_account1.to_account_info(),
+        reward_vault: ctx.accounts.reward_vault1.to_account_info(),
+        token_program: ctx.accounts.token_program.to_account_info(),
+    };
+    let collect_reward2 = whirlpool::cpi::accounts::CollectReward {
+        whirlpool: ctx.accounts.whirlpool.to_account_info(),
+        position: ctx.accounts.position.to_account_info(),
+        position_token_account: ctx.accounts.position_token_account.to_account_info(),
+        position_authority: ctx.accounts.position_authority.to_account_info(),
+        reward_owner_account: ctx.accounts.reward_owner_account2.to_account_info(),
+        reward_vault: ctx.accounts.reward_vault2.to_account_info(),
+        token_program: ctx.accounts.token_program.to_account_info(),
+    };
+    whirlpool::cpi::collect_reward(
+        CpiContext::new(
+            ctx.accounts.orca_program.to_account_info(),
+            collect_reward0,
+        ),
+        0
+    )?;
+    whirlpool::cpi::collect_reward(
+        CpiContext::new(
+            ctx.accounts.orca_program.to_account_info(),
+            collect_reward1,
+        ),
+        1
+    )?;
+    whirlpool::cpi::collect_reward(
+        CpiContext::new(
+            ctx.accounts.orca_program.to_account_info(),
+            collect_reward2,
+        ),
+        2
+    )?;
 
-    // Call the CPI to claim
+    // Call the CPI to claim from airdrop
     let claim_accounts = dual_airdrop::cpi::accounts::Claim {
         authority: ctx.accounts.cpi_authority.to_account_info(),
         state: ctx.accounts.airdrop_state.to_account_info(),
@@ -51,13 +113,10 @@ pub fn handle_claim(ctx: Context<Claim>) -> Result<()> {
 #[derive(Accounts)]
 #[instruction()]
 pub struct Claim<'info> {
-    /// Authority just needs to pay for gas. Does not actually have to be the
-    /// recipient.
-    pub authority: Signer<'info>,
-
     pub verifier_state: Account<'info, VerifierState>,
 
     #[account(
+        has_one = whirlpool,
         constraint = position.whirlpool.as_ref() == verifier_state.pool.as_ref(),
         constraint = airdrop_state.key.as_ref() == verifier_state.airdrop_state.as_ref(),
     )]
@@ -69,13 +128,20 @@ pub struct Claim<'info> {
     )]
     pub position_token_account: Box<Account<'info, TokenAccount>>,
 
-    #[account(
-        mut,
-        seeds = ["Receipt".as_ref(), verifier_state.key().as_ref(), position.key().as_ref()],
-        constraint = receipt.position.key().as_ref() == position.key().as_ref(),
-        bump = receipt.bump,
-    )]
-    pub receipt: Account<'info, Receipt>,
+    pub whirlpool: Account<'info, Whirlpool>,
+
+    #[account(has_one = whirlpool)]
+    pub tick_array_lower: AccountLoader<'info, TickArray>,
+    #[account(has_one = whirlpool)]
+    pub tick_array_upper: AccountLoader<'info, TickArray>,
+
+    pub position_authority: Signer<'info>,
+    pub reward_owner_account0: Box<Account<'info, TokenAccount>>,
+    pub reward_vault0: Box<Account<'info, TokenAccount>>,
+    pub reward_owner_account1: Box<Account<'info, TokenAccount>>,
+    pub reward_vault1: Box<Account<'info, TokenAccount>>,
+    pub reward_owner_account2: Box<Account<'info, TokenAccount>>,
+    pub reward_vault2: Box<Account<'info, TokenAccount>>,
 
     #[account(seeds = [&airdrop_state.key().to_bytes()], bump)]
     /// CHECK: Checked in the CPI
@@ -91,35 +157,5 @@ pub struct Claim<'info> {
 
     /// Program which actually calls for the token transfer.
     pub airdrop_program: Program<'info, AirdropProgram>,
-}
-
-pub fn handle_init_receipt(ctx: Context<InitReceipt>) -> Result<()> {
-    ctx.accounts.receipt.bump = *ctx.bumps.get("receipt").unwrap();
-    ctx.accounts.receipt.position = ctx.accounts.position.key();
-    ctx.accounts.receipt.fee_checkpoint = 0;
-    Ok(())
-}
-
-#[derive(Accounts)]
-#[instruction()]
-pub struct InitReceipt<'info> {
-    /// Authority just needs to pay for the receipt rent. Does not actually have
-    /// to be the recipient.
-    #[account(mut)]
-    pub authority: Signer<'info>,
-
-    pub verifier_state: Account<'info, VerifierState>,
-
-    pub position: Account<'info, Position>,
-
-    #[account(
-        init,
-        seeds = ["Receipt".as_ref(), verifier_state.key().as_ref(), position.key().as_ref()],
-        bump,
-        space = 8 + std::mem::size_of::<Receipt>(),
-        payer = authority
-    )]
-    pub receipt: Account<'info, Receipt>,
-
-    pub system_program: Program<'info, System>,
+    pub orca_program: Program<'info, WhirlpoolProgram>,
 }
