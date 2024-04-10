@@ -51,7 +51,7 @@ pub fn handle_claim(ctx: Context<Claim>, amount: u64, verification_data: Vec<u8>
         token_program: ctx.accounts.token_program.to_account_info(),
     };
     let cpi_program = ctx.accounts.airdrop_program.to_account_info();
-    
+
     // Requires this verifier state as a signer instead of the airdrop state
     // because airdrop state could allow for another merkle verifier state to
     // construct the same signature.
