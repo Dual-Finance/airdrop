@@ -42,7 +42,7 @@ describe('merkle_verifier', () => {
       airdropProgram.programId,
     );
     const [verifierSignature, _signatureBump] = anchor.web3.PublicKey.findProgramAddressSync(
-      [merkleState.toBuffer()],
+      [merkleVerifierState.toBuffer()],
       verifierProgram.programId,
     );
 
