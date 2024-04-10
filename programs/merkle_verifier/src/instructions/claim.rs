@@ -52,14 +52,15 @@ pub fn handle_claim(ctx: Context<Claim>, amount: u64, verification_data: Vec<u8>
     };
     let cpi_program = ctx.accounts.airdrop_program.to_account_info();
 
-    // Requires the airdrop state as a key so you cannot just claim for a
-    // different one.
+    // Requires this verifier state as a signer instead of the airdrop state
+    // because airdrop state could allow for another merkle verifier state to
+    // construct the same signature.
     dual_airdrop::cpi::claim(
         CpiContext::new_with_signer(
             cpi_program,
             claim_accounts,
             &[&[
-                &ctx.accounts.airdrop_state.key().to_bytes(),
+                &ctx.accounts.verifier_state.key().to_bytes(),
                 &[*ctx.bumps.get("cpi_authority").unwrap()],
             ]],
         ),
@@ -89,7 +90,7 @@ pub struct Claim<'info> {
     )]
     pub receipt: Account<'info, Receipt>,
 
-    #[account(seeds = [&airdrop_state.key().to_bytes()], bump)]
+    #[account(seeds = [&verifier_state.key().to_bytes()], bump)]
     /// CHECK: Checked in the CPI
     pub cpi_authority: UncheckedAccount<'info>,
     #[account(constraint = airdrop_state.key.as_ref() == verifier_state.airdrop_state.as_ref())]
