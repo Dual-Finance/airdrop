@@ -48,6 +48,7 @@ describe('orca_verifier', () => {
     )
       .accounts({
         payer: provider.publicKey,
+        closeAuthority: provider.publicKey,
         state: airdropState,
         vault: orcaVault,
         mint,
