@@ -47,7 +47,7 @@ pub fn handle_configure(ctx: Context<Configure>, state_seed: [u8; 32]) -> Result
 
     ctx.accounts.state.vault = ctx.accounts.vault.key();
     ctx.accounts.state.vault_bump = *ctx.bumps.get("vault").unwrap();
-    ctx.accounts.state.close_authority = ctx.accounts.verifier_signature.key();
+    ctx.accounts.state.close_authority = ctx.accounts.close_authority.key();
 
     ctx.accounts.state.state_seed = state_seed;
     ctx.accounts.state.state_bump = *ctx.bumps.get("state").unwrap();
