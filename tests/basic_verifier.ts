@@ -40,6 +40,7 @@ describe('basic_verifier', () => {
     )
       .accounts({
         payer: provider.publicKey,
+        closeAuthority: provider.publicKey,
         state: basicState,
         vault: basicVault,
         mint,

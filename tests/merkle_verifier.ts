@@ -51,6 +51,7 @@ describe('merkle_verifier', () => {
     )
       .accounts({
         payer: provider.publicKey,
+        closeAuthority: provider.publicKey,
         state: merkleState,
         vault: merkleVault,
         mint,

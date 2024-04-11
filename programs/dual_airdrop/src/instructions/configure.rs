@@ -34,6 +34,9 @@ pub struct Configure<'info> {
     /// CHECK: Will be verified in the verifier_program.
     pub verifier_signature: AccountInfo<'info>,
 
+    /// CHECK: Just a public key saved for later to be matched as a signer of the close.
+    pub close_authority: AccountInfo<'info>,
+
     pub token_program: Program<'info, Token>,
     pub system_program: Program<'info, System>,
     pub rent: Sysvar<'info, Rent>,
@@ -44,7 +47,7 @@ pub fn handle_configure(ctx: Context<Configure>, state_seed: [u8; 32]) -> Result
 
     ctx.accounts.state.vault = ctx.accounts.vault.key();
     ctx.accounts.state.vault_bump = *ctx.bumps.get("vault").unwrap();
-    ctx.accounts.state.close_authority = ctx.accounts.payer.key();
+    ctx.accounts.state.close_authority = ctx.accounts.verifier_signature.key();
 
     ctx.accounts.state.state_seed = state_seed;
     ctx.accounts.state.state_bump = *ctx.bumps.get("state").unwrap();

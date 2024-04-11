@@ -50,6 +50,7 @@ describe('password_verifier', () => {
     )
       .accounts({
         payer: provider.publicKey,
+        closeAuthority: provider.publicKey,
         state: passwordState,
         vault: passwordVault,
         mint,
