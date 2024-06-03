@@ -16,10 +16,6 @@ pub mod orca_verifier {
         handle_init(ctx, seed, reward_index)
     }
 
-    pub fn init_receipt(ctx: Context<InitReceipt>) -> Result<()> {
-        handle_init_receipt(ctx)
-    }
-
     pub fn claim(ctx: Context<Claim>) -> Result<()> {
         handle_claim(ctx)
     }
